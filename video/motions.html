@@ -158,18 +158,22 @@ function stepFlow(t) {
   c.globalCompositeOperation = 'source-over';
   c.fillStyle = 'rgba(5,8,15,.07)'; c.fillRect(0, 0, W, H);
   c.lineWidth = 1.6;
+  const warm = new Path2D();
   c.strokeStyle = 'rgba(255,255,255,.55)';
   c.beginPath();
-  for (const p of ps) {
+  for (let i = 0; i < ps.length; i++) {
+    const p = ps[i];
     const a = ang(p.x, p.y, t);
     const nx = p.x + Math.cos(a) * 5.5, ny = p.y + Math.sin(a) * 5.5;
-    c.moveTo(p.x, p.y); c.lineTo(nx, ny);
+    const path = i % 4 === 0 ? warm : null;
+    if (path) { path.moveTo(p.x, p.y); path.lineTo(nx, ny); } else { c.moveTo(p.x, p.y); c.lineTo(nx, ny); }
     p.x = nx; p.y = ny; p.life++;
     if (p.x < 0 || p.x > W || p.y < 0 || p.y > H || p.life > 260) {
       p.x = r() * W; p.y = r() * H; p.life = 0;
     }
   }
   c.stroke();
+  c.strokeStyle = 'rgba(232,137,46,.75)'; c.stroke(warm);
 }
 function drawFlow(t, lt) {
   if (!flow) { initFlow(); for (let i = 0; i < 160; i++) stepFlow(i / FPS); }
@@ -181,8 +185,9 @@ function drawFlow(t, lt) {
   // título
   const k = eOut(seg(lt, .4, 1.4));
   ctx.save(); ctx.globalAlpha *= k;
-  text('FLUXO', W / 2, H - 330 + (1 - k) * 30, 150, 800, '#fff', 'center', 10);
-  text('tudo em movimento', W / 2, H - 230 + (1 - k) * 30, 36, 500, 'rgba(255,255,255,.7)', 'center', 4);
+  text('O QUE ERA PERDA', W / 2, H - 400 + (1 - k) * 30, 74, 800, '#fff', 'center', 4);
+  text('VOLTA PARA A MASSA', W / 2, H - 310 + (1 - k) * 30, 74, 800, '#E8892E', 'center', 4);
+  text('telhas e tijolos reprovados voltam à produção', W / 2, H - 220 + (1 - k) * 30, 32, 500, 'rgba(255,255,255,.75)', 'center', 1);
   ctx.restore();
 }
 
@@ -229,6 +234,19 @@ function drawGrid(t, lt) {
     const p = pts[j][i], L = light(p);
     if (L > .25) { ctx.fillStyle = `rgba(255,255,255,${L})`; ctx.beginPath(); ctx.arc(p.sx, p.sy, 2 + L * 3, 0, 7); ctx.fill(); }
   }
+  // 17 olarias surgindo sobre a superfície
+  for (let n = 0; n < 17; n++) {
+    const i = 3 + Math.floor(hash(n + 300) * (NX - 6)), j = 3 + Math.floor(hash(n + 400) * NZ * .62);
+    const p = pts[j][i];
+    const k = clamp(eBack(seg(lt, 1.0 + n * .13, 1.7 + n * .13)));
+    if (k <= 0) continue;
+    const s = clamp(26 / p.zz * 7, 8, 44) * k;
+    const pulse = 1 + .25 * Math.sin(lt * 5 + n);
+    const gg = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, s * 3.4 * pulse);
+    gg.addColorStop(0, 'rgba(232,137,46,.75)'); gg.addColorStop(1, 'rgba(232,137,46,0)');
+    ctx.fillStyle = gg; ctx.fillRect(p.sx - s * 4, p.sy - s * 4, s * 8, s * 8);
+    ctx.fillStyle = '#FFB36B'; ctx.beginPath(); ctx.arc(p.sx, p.sy, s * .55, 0, 7); ctx.fill();
+  }
   // halo da luz
   const lp = P(NX / 2 + lx / SX, (lz - 2) / SZ);
   ctx.globalCompositeOperation = 'lighter';
@@ -243,8 +261,10 @@ function drawGrid(t, lt) {
 
   const k = eOut(seg(lt, .3, 1.2));
   ctx.save(); ctx.globalAlpha *= k;
-  text('PROFUNDIDADE', W / 2, 330 + (1 - k) * -30, 84, 800, '#fff', 'center', 8);
-  text('luz, relevo e perspectiva', W / 2, 420, 34, 500, 'rgba(255,255,255,.65)', 'center', 3);
+  const cnt = Math.min(17, Math.floor(Math.max(0, lt - 1.0) / .13) + 1);
+  text(String(lt < 1.0 ? 0 : cnt), W / 2 - 250, 300 + (1 - k) * -30, 150, 900, '#E8892E', 'center', -4);
+  text('OLARIAS', W / 2 + 120, 300 + (1 - k) * -30, 100, 800, '#fff', 'center', 6);
+  text('mapeadas no APL de cerâmica vermelha do Cariri', W / 2, 410, 30, 500, 'rgba(255,255,255,.7)', 'center', 1);
   ctx.restore();
 }
 
@@ -255,8 +275,8 @@ function drawType(t, lt) {
   rg.addColorStop(0, 'rgba(36,69,216,.22)'); rg.addColorStop(1, 'rgba(36,69,216,0)');
   ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
 
-  const word = 'SINGLE';
-  const size = 232;
+  const word = 'CHAMOTE';
+  const size = 184;
   const cx = W / 2, cy = H / 2 - 40;
   const inK = eOut(seg(lt, .2, 1.2));
   const blur = (1 - inK) * 40;
@@ -282,7 +302,7 @@ function drawType(t, lt) {
     // fatias deslocadas
     const slices = 5;
     for (let s = 0; s < slices; s++) {
-      const y = cy - 130 + hash(fr * 7 + s) * 260;
+      const y = cy - 100 + hash(fr * 7 + s) * 200;
       const h = 6 + hash(fr * 3 + s) * 22;
       const dx = (hash(fr * 11 + s) - .5) * 80;
       ctx.save();
@@ -303,7 +323,9 @@ function drawType(t, lt) {
 
   const k = eOut(seg(lt, 1, 1.8));
   ctx.save(); ctx.globalAlpha *= k;
-  text('uma ideia. um movimento.', W / 2, cy + 230 + (1 - k) * 24, 40, 500, 'rgba(255,255,255,.75)', 'center', 4);
+  text('RESÍDUO CERÂMICO VIRA', W / 2, cy - 200 + (1 - k) * -24, 40, 700, 'rgba(255,255,255,.8)', 'center', 8);
+  text('granulometria controlada', W / 2, cy + 190 + (1 - k) * 24, 38, 500, 'rgba(255,255,255,.75)', 'center', 3);
+  text('5% na massa  ·  18 a 70 mesh', W / 2, cy + 260 + (1 - k) * 24, 30, 600, '#E8892E', 'center', 3);
   ctx.restore();
 }
 
@@ -315,10 +337,10 @@ function drawDash(t, lt) {
 
   const k0 = eOut(seg(lt, .1, 1));
   ctx.save(); ctx.globalAlpha *= k0;
-  text('RESULTADOS', W / 2, 250 + (1 - k0) * -24, 76, 800, '#fff', 'center', 8);
+  text('VIABILIDADE', W / 2, 235 + (1 - k0) * -24, 76, 800, '#fff', 'center', 8);
+  text('mais barato que argila nova', W / 2, 315, 32, 500, 'rgba(255,255,255,.65)', 'center', 2);
   ctx.restore();
 
-  // cartão principal: contador
   const card = (x, y, w, h, a, fn) => {
     const k = eOut(seg(lt, a, a + .8));
     ctx.save();
@@ -330,70 +352,71 @@ function drawDash(t, lt) {
     fn(x, y, w, h);
     ctx.restore();
   };
+  const brl = v => v.toFixed(2).replace('.', ',');
 
-  card(72, 360, 936, 420, .3, (x, y, w, h) => {
-    text('CRESCIMENTO', x + 56, y + 70, 28, 700, 'rgba(255,255,255,.55)', 'left', 5);
-    const n = Math.round(312 * eOut(seg(lt, .7, 2.6)));
-    text('+' + n + '%', x + 56, y + 210, 190, 900, '#fff', 'left', -4);
-    // badge
-    rr(x + 56, y + 320, 250, 56, 28); ctx.fillStyle = 'rgba(74,222,128,.18)'; ctx.fill();
-    text('▲ vs. mês anterior', x + 181, y + 348, 24, 700, '#4ADE80', 'center', 0);
-    // sparkline
-    const sx = x + 520, sy = y + 90, sw = 360, sh = 220;
+  // economia por tonelada
+  card(72, 370, 936, 390, .3, (x, y, w, h) => {
+    text('ECONOMIA POR TONELADA', x + 56, y + 70, 28, 700, 'rgba(255,255,255,.55)', 'left', 5);
+    const n = 11.98 * eOut(seg(lt, .7, 2.6));
+    text('R$ ' + brl(n), x + 56, y + 195, 150, 900, '#fff', 'left', -4);
+    rr(x + 56, y + 290, 470, 56, 28); ctx.fillStyle = 'rgba(74,222,128,.18)'; ctx.fill();
+    text('▼ frente à argila virgem', x + 291, y + 318, 24, 700, '#4ADE80', 'center', 0);
+    // seta de queda
     const pr = eInOut(seg(lt, .9, 2.8));
     ctx.beginPath();
-    const N = 30;
+    const N = 30, sx = x + 650, sy = y + 90, sw = 230, sh = 200;
     for (let i = 0; i <= N * pr; i++) {
-      const u = i / N;
-      const v = Math.pow(u, 1.8) * .85 + .1 * Math.sin(u * 14) * u + .05;
-      const px = sx + u * sw, py = sy + sh - v * sh;
-      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      const u = i / N, v = 1 - (1 - Math.pow(1 - u, 2.2)) * .8;
+      i ? ctx.lineTo(sx + u * sw, sy + (1 - v) * sh) : ctx.moveTo(sx + u * sw, sy + (1 - v) * sh);
     }
-    ctx.strokeStyle = '#7D96FF'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+    ctx.strokeStyle = '#E8892E'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
   });
 
-  // anel 78%
-  card(72, 830, 450, 520, 1.1, (x, y, w, h) => {
-    text('META', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
-    const cx = x + w / 2, cy = y + 700 - 410 + 0, R = 140;
-    const ccy = y + 285;
+  // anel: 66% menos energia
+  card(72, 810, 450, 540, 1.1, (x, y, w, h) => {
+    text('ENERGIA', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
+    const cx = x + w / 2, R = 140, ccy = y + 285;
     ctx.lineWidth = 34; ctx.lineCap = 'round';
     ctx.strokeStyle = 'rgba(255,255,255,.1)';
     ctx.beginPath(); ctx.arc(cx, ccy, R, 0, Math.PI * 2); ctx.stroke();
-    const p = .78 * eOut(seg(lt, 1.5, 3.2));
+    const p = .66 * eOut(seg(lt, 1.5, 3.2));
     const gr = ctx.createLinearGradient(cx - R, ccy - R, cx + R, ccy + R);
     gr.addColorStop(0, '#7D96FF'); gr.addColorStop(1, '#E8892E');
     ctx.strokeStyle = gr;
     ctx.beginPath(); ctx.arc(cx, ccy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); ctx.stroke();
-    text(Math.round(p * 100) + '%', cx, ccy, 82, 800, '#fff', 'center', -2);
-    text('concluído', cx, y + 480, 28, 500, 'rgba(255,255,255,.6)', 'center', 2);
+    text('-' + Math.round(p * 100) + '%', cx, ccy, 78, 800, '#fff', 'center', -2);
+    text('menos energia', cx, y + 480, 28, 500, 'rgba(255,255,255,.6)', 'center', 2);
   });
 
-  // barras
-  card(558, 830, 450, 520, 1.3, (x, y, w, h) => {
-    text('SEMANA', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
-    const vals = [.38, .55, .46, .72, .62, .88, 1];
-    const bw = 36, gap = (w - 80 - bw * 7) / 6, base = y + h - 70, mh = 340;
-    vals.forEach((v, i) => {
-      const k = eBack(seg(lt, 1.7 + i * .12, 2.5 + i * .12));
-      const hh = v * mh * clamp(k, 0, 1.08);
-      const bx = x + 40 + i * (bw + gap);
+  // barras: custo por tonelada
+  card(558, 810, 450, 540, 1.3, (x, y, w, h) => {
+    text('R$ / TONELADA', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
+    const base = y + h - 130, mh = 235, bw = 130;
+    [[17.5, 'Argila virgem', 'rgba(255,255,255,.35)', 'rgba(255,255,255,.12)'], [5.75, 'Eco-Moedor', '#E8892E', '#C25A35']].forEach(([v, name, c1, c2], i) => {
+      const k = clamp(eBack(seg(lt, 1.7 + i * .35, 2.7 + i * .35)), 0, 1.06);
+      const hh = (v / 17.5) * mh * k;
+      const bx = x + 55 + i * (bw + 50);
       const gr = ctx.createLinearGradient(0, base - hh, 0, base);
-      gr.addColorStop(0, i === 6 ? '#E8892E' : '#7D96FF'); gr.addColorStop(1, i === 6 ? '#C25A35' : '#2445D8');
-      rr(bx, base - hh, bw, Math.max(hh, 1), 12); ctx.fillStyle = gr; ctx.fill();
-      text('SDTQQSS'[i], bx + bw / 2, base + 34, 22, 600, 'rgba(255,255,255,.5)', 'center', 0);
+      gr.addColorStop(0, c1); gr.addColorStop(1, c2);
+      rr(bx, base - hh, bw, Math.max(hh, 1), 18); ctx.fillStyle = gr; ctx.fill();
+      text('R$ ' + brl(v), bx + bw / 2, base - hh - 30, 34, 800, '#fff', 'center', 0);
+      text(name, bx + bw / 2, base + 40, 22, 600, 'rgba(255,255,255,.6)', 'center', 0);
     });
   });
 
-  // cartão de métricas
+  // métricas do mercado
   card(72, 1400, 936, 250, 1.6, (x, y, w, h) => {
-    const items = [['12,4k', 'visitas'], ['4,8%', 'conversão'], ['R$ 38', 'ticket']];
+    const items = [['17', 'olarias mapeadas'], ['3–5%', 'de perda operacional'], ['5%', 'de chamote na massa']];
     items.forEach((it, i) => {
       const cx = x + w / 6 + i * (w / 3);
-      text(it[0], cx, y + 100, 72, 800, '#fff', 'center', -1);
-      text(it[1], cx, y + 175, 28, 500, 'rgba(255,255,255,.55)', 'center', 2);
+      text(it[0], cx, y + 100, 76, 800, '#fff', 'center', -1);
+      text(it[1], cx, y + 175, 24, 500, 'rgba(255,255,255,.55)', 'center', 1);
     });
   });
+  const fk = eOut(seg(lt, 2.4, 3.2));
+  ctx.save(); ctx.globalAlpha *= fk;
+  text('Valores estimados a partir do protótipo em validação.', W / 2, 1720, 24, 500, 'rgba(255,255,255,.45)', 'center', 0);
+  ctx.restore();
 }
 
 // ---------- 06 janela de UI ----------
@@ -417,7 +440,7 @@ function drawUI(t, lt) {
   ctx.save(); rr(wx, wy, ww, wh, 44); ctx.clip();
   ctx.fillStyle = '#E4E8EF'; ctx.fillRect(wx, wy, ww, 100); ctx.restore();
   ['#FF5F57', '#FEBC2E', '#28C840'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(wx + 52 + i * 42, wy + 50, 13, 0, 7); ctx.fill(); });
-  text('Configurações', wx + ww / 2, wy + 50, 30, 700, '#0F1730', 'center', 0);
+  text('Eco-Moedor Cerâmico', wx + ww / 2, wy + 50, 30, 700, '#0F1730', 'center', 0);
 
   // toggles
   const toggle = (label, sub, y, on0) => {
@@ -439,9 +462,9 @@ function drawUI(t, lt) {
     return k;
   };
   let kk;
-  kk = row(0, .7); ctx.save(); ctx.globalAlpha *= kk; toggle('Modo escuro', 'Reduz o brilho da tela', wy + 230, 2.0); ctx.restore();
-  kk = row(0, .85); ctx.save(); ctx.globalAlpha *= kk; toggle('Notificações', 'Avisos em tempo real', wy + 380, 2.6); ctx.restore();
-  kk = row(0, 1.0); ctx.save(); ctx.globalAlpha *= kk; toggle('Sincronização', 'Atualizar automaticamente', wy + 530, 3.2); ctx.restore();
+  kk = row(0, .7); ctx.save(); ctx.globalAlpha *= kk; toggle('Trituração', 'Por compressão', wy + 230, 2.0); ctx.restore();
+  kk = row(0, .85); ctx.save(); ctx.globalAlpha *= kk; toggle('Refino', 'Grãos no tamanho ideal', wy + 380, 2.6); ctx.restore();
+  kk = row(0, 1.0); ctx.save(); ctx.globalAlpha *= kk; toggle('Classificação', 'Granulometria de 18 a 70 mesh', wy + 530, 3.2); ctx.restore();
 
   // divisor
   ctx.fillStyle = '#DDE2EA'; ctx.fillRect(wx + 60, wy + 625, ww - 120, 3);
@@ -462,7 +485,7 @@ function drawUI(t, lt) {
     ctx.beginPath(); ctx.arc(bx + bw * .62, by + bh / 2, 40 + rk * 620, 0, 7); ctx.fill();
   }
   ctx.restore();
-  text(done > .5 ? '✓  Tudo pronto' : 'Salvar alterações', W / 2, by + bh / 2, 42, 800, '#fff', 'center', 0);
+  text(done > .5 ? '✓  Chamote pronto' : 'Processar material', W / 2, by + bh / 2, 42, 800, '#fff', 'center', 0);
   ctx.restore();
 
   // cursor
@@ -495,8 +518,8 @@ function drawUI(t, lt) {
 
   const k = eOut(seg(lt, .2, 1));
   ctx.save(); ctx.globalAlpha *= k;
-  text('MICROINTERAÇÕES', W / 2, 270, 70, 800, '#fff', 'center', 6);
-  text('cada clique tem resposta', W / 2, 355, 34, 500, 'rgba(255,255,255,.65)', 'center', 3);
+  text('PROTÓTIPO', W / 2, 250, 84, 800, '#fff', 'center', 8);
+  text('TRL 3→4  ·  patente em depósito', W / 2, 345, 34, 600, '#E8892E', 'center', 3);
   ctx.restore();
 
   // fecho: logo
@@ -504,13 +527,14 @@ function drawUI(t, lt) {
   ctx.save(); ctx.globalAlpha *= ek;
   ctx.drawImage(logo, W / 2 - 55, 1530, 110, 110);
   text('JUBARTECH', W / 2, 1700, 44, 800, '#fff', 'center', 10);
+  text('Vamos conversar  ·  @jubartech', W / 2, 1770, 30, 500, 'rgba(255,255,255,.75)', 'center', 2);
   ctx.restore();
 }
 
 // ---------- compositor ----------
 const draw = { intro: drawIntro, flow: drawFlow, grid: drawGrid, type: drawType, dash: drawDash, ui: drawUI };
 const sceneIdx = { intro: 1, flow: 2, grid: 3, type: 4, dash: 5, ui: 6 };
-const names = { flow: 'FLOW FIELD', grid: 'GRADE 3D', type: 'TIPOGRAFIA', dash: 'DASHBOARD', ui: 'INTERFACE' };
+const names = { flow: 'REAPROVEITAMENTO', grid: 'MERCADO', type: 'CHAMOTE', dash: 'VIABILIDADE', ui: 'PROTÓTIPO' };
 
 function renderAt(t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
