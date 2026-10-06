@@ -65,13 +65,15 @@ function label(n, name, a) {
 // ---------- linha do tempo ----------
 const SCENES = [
   { id: 'intro', a: 0,    b: 4.2  },
-  { id: 'flow',  a: 3.8,  b: 9.2  },
-  { id: 'grid',  a: 8.8,  b: 14.2 },
-  { id: 'type',  a: 13.8, b: 18.2 },
-  { id: 'dash',  a: 17.8, b: 23.2 },
-  { id: 'ui',    a: 22.8, b: 28.0 },
+  { id: 'grid',  a: 3.8,  b: 9.2  },
+  { id: 'flow',  a: 8.8,  b: 14.2 },
+  { id: 'brick', a: 13.8, b: 20.8 },
+  { id: 'sim',   a: 20.4, b: 31.2 },
+  { id: 'type',  a: 30.8, b: 35.2 },
+  { id: 'dash',  a: 34.8, b: 40.2 },
+  { id: 'ui',    a: 39.8, b: 45.0 },
 ];
-const DURATION = 28.0;
+const DURATION = 45.0;
 const XF = 0.4;
 
 const logo = new Image();
@@ -518,8 +520,8 @@ function drawUI(t, lt) {
 
   const k = eOut(seg(lt, .2, 1));
   ctx.save(); ctx.globalAlpha *= k;
-  text('PROTÓTIPO', W / 2, 250, 84, 800, '#fff', 'center', 8);
-  text('TRL 3→4  ·  patente em depósito', W / 2, 345, 34, 600, '#E8892E', 'center', 3);
+  text('TECNOLOGIA', W / 2, 250, 84, 800, '#fff', 'center', 8);
+  text('licenciada a fabricantes de equipamentos', W / 2, 345, 32, 600, '#E8892E', 'center', 2);
   ctx.restore();
 
   // fecho: logo
@@ -531,10 +533,262 @@ function drawUI(t, lt) {
   ctx.restore();
 }
 
+
+// ---------- tijolo defeituoso vira chamote ----------
+const BRICK_T = [1.7, 2.3, 2.9, 3.5];             // quando cada tijolo chega aos rotores
+const OUTX = 540, OUTY = 1205, BASE = 1690, PILE_W = 250, PILE_H = 270, NG = 280, GRAV = 1400;
+const prof = x => Math.exp(-Math.pow((x - 540) / (PILE_W * .62), 2));
+const GRAINS = [];
+for (let e = 0; e < 4; e++) for (let g = 0; g < NG / 4; g++) {
+  const id = e * (NG / 4) + g;
+  const x1 = 540 + (hash(id + 900) - .5) * 2 * PILE_W * .85;
+  const landY = BASE - PILE_H * prof(x1) * clamp((id + 1) / NG) * .9;
+  const spawn = BRICK_T[e] + .9 + hash(id + 1300) * .7;
+  const dur = Math.sqrt(2 * Math.max(landY - OUTY, 40) / GRAV);
+  GRAINS.push({ x0: OUTX + (hash(id + 1700) - .5) * 60, x1, landY, spawn, dur, r: 2.5 + hash(id + 2100) * 3.2, c: hash(id + 2500) });
+}
+const CHAMOTE = ['#E8B27C', '#D99A62', '#C98650', '#F0C594', '#B8743F'];
+
+function brickShape(w, h, seed) {
+  const P = [[-w/2+8,-h/2],[w/2-46,-h/2],[w/2-30,-h/2+14],[w/2-12,-h/2+8],[w/2,-h/2+30],[w/2,h/2-8],[w/2-8,h/2],[-w/2+30,h/2],[-w/2+14,h/2-16],[-w/2+2,h/2-10],[-w/2,-h/2+8]];
+  ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+  const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+  g.addColorStop(0, '#D8703F'); g.addColorStop(1, '#A44629');
+  ctx.fillStyle = g; ctx.fill();
+  ctx.lineJoin = 'round'; ctx.strokeStyle = '#6E2D1B'; ctx.lineWidth = 4; ctx.stroke();
+  // furos do tijolo
+  ctx.fillStyle = 'rgba(80,28,14,.55)';
+  for (let i = 0; i < 3; i++) { rr(-w / 2 + 34 + i * (w - 68) / 3, -h * .22, (w - 68) / 3 - 14, h * .44, 8); ctx.fill(); }
+  // trincas
+  ctx.strokeStyle = '#2E100A'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+  const cx0 = (hash(seed) - .5) * w * .3;
+  ctx.beginPath(); ctx.moveTo(cx0, -h / 2); ctx.lineTo(cx0 + 12, -h * .2); ctx.lineTo(cx0 - 10, h * .05); ctx.lineTo(cx0 + 14, h * .28); ctx.lineTo(cx0 + 2, h / 2); ctx.stroke();
+  ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(cx0 + 12, -h * .2); ctx.lineTo(cx0 + 44, -h * .12); ctx.lineTo(cx0 + 60, h * .02); ctx.stroke();
+}
+function roller(cx, cy, ang) {
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang);
+  for (let i = 0; i < 10; i++) {
+    ctx.save(); ctx.rotate(i * Math.PI / 5);
+    ctx.fillStyle = i % 2 ? '#F2B33D' : '#2445D8';
+    rr(-11, -66, 22, 44, 5); ctx.fill();
+    ctx.restore();
+  }
+  const g = ctx.createRadialGradient(-10, -10, 4, 0, 0, 44);
+  g.addColorStop(0, '#C4CCD8'); g.addColorStop(1, '#5B6678');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 44, 0, 7); ctx.fill();
+  ctx.fillStyle = '#2A3342'; ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+function drawBrick(t, lt) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0D1424'); g.addColorStop(1, '#070A12');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const rg = ctx.createRadialGradient(540, 1000, 0, 540, 1000, 800);
+  rg.addColorStop(0, 'rgba(194,90,53,.20)'); rg.addColorStop(1, 'rgba(194,90,53,0)');
+  ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+
+  // tremor quando um tijolo é esmagado
+  let sx = 0, sy = 0;
+  BRICK_T.forEach((T, e) => { const dt = lt - T; if (dt > 0 && dt < .25) { const am = 9 * (1 - dt / .25); sx += (hash(Math.floor(lt * 60) + e) - .5) * 2 * am; sy += (hash(Math.floor(lt * 60) + e + 9) - .5) * 2 * am; } });
+  ctx.save(); ctx.translate(sx, sy);
+
+  // funil (fundo)
+  ctx.beginPath(); ctx.moveTo(180, 560); ctx.lineTo(900, 560); ctx.lineTo(690, 820); ctx.lineTo(390, 820); ctx.closePath();
+  ctx.fillStyle = '#18202E'; ctx.fill();
+  // câmara + rotores
+  ctx.fillStyle = '#0B0F18'; ctx.fillRect(350, 820, 380, 220);
+  roller(455, 945, lt * 3.4); roller(625, 945, -lt * 3.4);
+
+  // tijolos
+  BRICK_T.forEach((T, i) => {
+    const appear = eBack(seg(lt, .3 + i * .15, .9 + i * .15));
+    if (appear <= 0 || lt >= T) return;
+    const tf = T - 1.0, kf = seg(lt, tf, T);
+    const x0 = 540 + (i - 1.5) * 240, y0 = 470;
+    const x = lerp(x0, 540 + (i - 1.5) * 12, eInOut(kf));
+    const y = lerp(y0, 866, kf * kf);
+    const rot = lerp((hash(i + 20) - .5) * .34, (i % 2 ? .08 : -.08), kf);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(appear, appear);
+    brickShape(190, 92, i + 5);
+    // carimbo
+    const sk = eOut(seg(lt, .9 + i * .15, 1.15 + i * .15));
+    if (sk > 0) {
+      ctx.save(); ctx.rotate(-.17); ctx.scale(1.7 - .7 * sk, 1.7 - .7 * sk); ctx.globalAlpha *= sk;
+      rr(-82, -17, 164, 34, 6); ctx.strokeStyle = '#FF5C5C'; ctx.lineWidth = 3; ctx.stroke();
+      ctx.fillStyle = 'rgba(40,10,10,.35)'; ctx.fill();
+      text('REPROVADO', 0, 1, 20, 800, '#FF6B6B', 'center', 2);
+      ctx.restore();
+    }
+    ctx.restore();
+  });
+
+  // paredes do funil (frente) e borda
+  ctx.fillStyle = '#566179';
+  ctx.beginPath(); ctx.moveTo(150, 550); ctx.lineTo(210, 550); ctx.lineTo(430, 820); ctx.lineTo(360, 820); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(930, 550); ctx.lineTo(870, 550); ctx.lineTo(650, 820); ctx.lineTo(720, 820); ctx.closePath(); ctx.fill();
+  rr(140, 538, 800, 20, 8); ctx.fillStyle = '#7A869E'; ctx.fill();
+  // estrutura da câmara
+  ctx.fillStyle = '#3C4658';
+  ctx.fillRect(320, 810, 40, 250); ctx.fillRect(720, 810, 40, 250); ctx.fillRect(320, 800, 440, 24); ctx.fillRect(320, 1030, 440, 28);
+  ctx.fillStyle = '#7A869E';
+  [[340, 835], [340, 1000], [740, 835], [740, 1000]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, 5, 0, 7); ctx.fill(); });
+  // motor
+  const mg = ctx.createLinearGradient(0, 900, 0, 1000);
+  mg.addColorStop(0, '#4D6BF0'); mg.addColorStop(1, '#1B33A8');
+  rr(150, 900, 170, 100, 14); ctx.fillStyle = mg; ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.18)'; for (let i = 0; i < 5; i++) ctx.fillRect(170 + i * 28, 912, 6, 76);
+  // calha verde
+  const cg = ctx.createLinearGradient(0, 1058, 0, 1205);
+  cg.addColorStop(0, '#3E9B5A'); cg.addColorStop(1, '#2A7442');
+  ctx.beginPath(); ctx.moveTo(340, 1058); ctx.lineTo(740, 1058); ctx.lineTo(600, 1205); ctx.lineTo(480, 1205); ctx.closePath(); ctx.fillStyle = cg; ctx.fill();
+
+  // poeira e fragmentos de cada esmagamento
+  BRICK_T.forEach((T, e) => {
+    const dt = lt - T;
+    if (dt > 0 && dt < .7) {
+      ctx.fillStyle = `rgba(232,160,110,${.32 * (1 - dt / .7)})`;
+      ctx.beginPath(); ctx.arc(540, 880, 30 + dt * 260, 0, 7); ctx.fill();
+    }
+    if (dt <= 0 || dt > 1.4) return;
+    for (let f = 0; f < 14; f++) {
+      const id = e * 40 + f;
+      const k = clamp(dt / .75);
+      const x0 = 540 + (hash(id) - .5) * 130;
+      const x = x0 + (hash(id + 100) - .5) * 40 * dt - (x0 - 540) * k * .85;
+      const y = 880 + 120 * dt + 520 * dt * dt;
+      const sz = (14 + hash(id + 200) * 22) * (1 - .72 * k);
+      const al = 1 - seg(dt, .75, 1.05);
+      if (al <= 0) continue;
+      ctx.save(); ctx.globalAlpha *= al; ctx.translate(x, y); ctx.rotate(hash(id + 300) * 6 + dt * 9);
+      ctx.fillStyle = k < .5 ? '#C25A35' : '#D99A62';
+      ctx.beginPath(); ctx.moveTo(-sz, -sz * .4); ctx.lineTo(sz * .8, -sz * .6); ctx.lineTo(sz * .5, sz * .6); ctx.lineTo(-sz * .6, sz * .5); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+  });
+
+  // grãos caindo e pilha de chamote
+  let landed = 0;
+  for (const gr of GRAINS) if (lt >= gr.spawn + gr.dur) landed++;
+  const frac = landed / NG, ph = Math.pow(frac, .85);
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(540, BASE + 14, PILE_W * 1.5, 22, 0, 0, 7); ctx.fill();
+  if (ph > .005) {
+    ctx.beginPath(); ctx.moveTo(540 - PILE_W * 1.5, BASE);
+    for (let x = 540 - PILE_W * 1.5; x <= 540 + PILE_W * 1.5; x += 6) ctx.lineTo(x, BASE - PILE_H * prof(x) * ph);
+    ctx.lineTo(540 + PILE_W * 1.5, BASE); ctx.closePath();
+    const pg = ctx.createLinearGradient(0, BASE - PILE_H, 0, BASE);
+    pg.addColorStop(0, '#E8B27C'); pg.addColorStop(1, '#A8663A');
+    ctx.fillStyle = pg; ctx.fill();
+    for (let i = 0; i < 1100; i++) {
+      const px = 540 + (hash(i + 4000) - .5) * 2 * PILE_W * 1.35;
+      const hh = PILE_H * prof(px) * ph;
+      if (hh < 4) continue;
+      ctx.fillStyle = CHAMOTE[Math.floor(hash(i + 5000) * CHAMOTE.length)];
+      const py = BASE - hash(i + 6000) * hh;
+      ctx.beginPath(); ctx.arc(px, py, 1.4 + hash(i + 7000) * 2.4, 0, 7); ctx.fill();
+    }
+  }
+  for (const gr of GRAINS) {
+    const dt = lt - gr.spawn;
+    if (dt < 0 || dt >= gr.dur) continue;
+    const k = dt / gr.dur;
+    const x = lerp(gr.x0, gr.x1, k), y = OUTY + .5 * GRAV * dt * dt;
+    ctx.fillStyle = CHAMOTE[Math.floor(gr.c * CHAMOTE.length)];
+    ctx.beginPath(); ctx.arc(x, y, gr.r, 0, 7); ctx.fill();
+  }
+  ctx.restore();
+
+  // textos
+  const k0 = eOut(seg(lt, .1, .9));
+  ctx.save(); ctx.globalAlpha *= k0;
+  text('TIJOLO DEFEITUOSO', W / 2, 200 + (1 - k0) * -24, 72, 800, '#fff', 'center', 4);
+  ctx.restore();
+  const k1 = eOut(seg(lt, 4.0, 4.9));
+  ctx.save(); ctx.globalAlpha *= k1;
+  text('VIRA CHAMOTE', W / 2, 295 + (1 - k1) * 20, 72, 800, '#E8892E', 'center', 4);
+  ctx.restore();
+  const k2 = eOut(seg(lt, 5.2, 6.1));
+  ctx.save(); ctx.globalAlpha *= k2;
+  text('granulometria controlada', W / 2, 1782 + (1 - k2) * 16, 38, 600, '#fff', 'center', 3);
+  text('5% na massa aumenta a resistência após a queima', W / 2, 1845 + (1 - k2) * 16, 28, 500, 'rgba(255,255,255,.7)', 'center', 1);
+  ctx.restore();
+}
+
+// ---------- vídeo do protótipo funcionando ----------
+const SIM_FPS = 24, SIM_N = 242;
+let simImg = new Image(), simIdx = -1;
+function simFrame(lt) { return clamp(Math.floor(lt * SIM_FPS), 0, SIM_N - 1); }
+async function loadSim(idx) {
+  if (idx === simIdx) return;
+  simIdx = idx;
+  await new Promise(r => { const im = new Image(); im.onload = () => { simImg = im; r(); }; im.onerror = r; im.src = `.cache/sim/f${String(idx + 1).padStart(4, '0')}.jpg`; });
+}
+const SIM_STEPS = [
+  [0, 2.1, 'Telhas e tijolos reprovados entram no funil'],
+  [2.1, 5.0, 'Rotores trituram por compressão'],
+  [5.0, 7.0, 'O material é refinado e classificado'],
+  [7.0, 99, 'A esteira entrega o chamote'],
+];
+function drawSim(t, lt) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0C1426'); g.addColorStop(1, '#05080F');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const k0 = eOut(seg(lt, .1, .9));
+  ctx.save(); ctx.globalAlpha *= k0;
+  text('PROTÓTIPO', W / 2, 230 + (1 - k0) * -24, 92, 800, '#fff', 'center', 8);
+  text('funcionando: simulação 3D do Eco-Moedor Cerâmico', W / 2, 330, 30, 500, 'rgba(255,255,255,.7)', 'center', 1);
+  ctx.restore();
+
+  const ck = eBack(seg(lt, .3, 1.2));
+  const cx = 40, cy = 460, cw = 1000, ch = 562;
+  ctx.save();
+  ctx.translate(W / 2, cy + ch / 2); ctx.scale(.9 + .1 * ck, .9 + .1 * ck); ctx.translate(-W / 2, -(cy + ch / 2));
+  ctx.globalAlpha *= clamp(ck * 1.5);
+  ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 30;
+  rr(cx, cy, cw, ch, 36); ctx.fillStyle = '#E9EDF0'; ctx.fill(); ctx.shadowColor = 'transparent';
+  ctx.save(); rr(cx, cy, cw, ch, 36); ctx.clip();
+  if (simImg.naturalWidth) ctx.drawImage(simImg, cx, cy, cw, ch);
+  ctx.restore();
+  rr(cx, cy, cw, ch, 36); ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 3; ctx.stroke();
+  // selo
+  rr(cx + 24, cy + 24, 250, 52, 26); ctx.fillStyle = 'rgba(15,23,48,.82)'; ctx.fill();
+  ctx.fillStyle = '#FF5C5C'; ctx.beginPath(); ctx.arc(cx + 52, cy + 50, 8 + 2 * Math.sin(lt * 6), 0, 7); ctx.fill();
+  text('SIMULAÇÃO 3D', cx + 72, cy + 51, 22, 700, '#fff', 'left', 3);
+  ctx.restore();
+
+  // barra de progresso
+  const pr = clamp(lt / 10.08);
+  rr(cx, cy + ch + 30, cw, 8, 4); ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fill();
+  rr(cx, cy + ch + 30, Math.max(cw * pr, 8), 8, 4); ctx.fillStyle = '#E8892E'; ctx.fill();
+
+  // etapas
+  SIM_STEPS.forEach(([a, b, label], i) => {
+    const y = 1230 + i * 120;
+    const on = lt >= a && lt < b;
+    const past = lt >= b;
+    const k = eOut(seg(lt, .8 + i * .15, 1.5 + i * .15));
+    ctx.save(); ctx.globalAlpha *= k;
+    ctx.translate((1 - k) * 40, 0);
+    rr(72, y - 44, 936, 88, 28);
+    ctx.fillStyle = on ? 'rgba(232,137,46,.16)' : 'rgba(255,255,255,.05)'; ctx.fill();
+    ctx.strokeStyle = on ? '#E8892E' : 'rgba(255,255,255,.1)'; ctx.lineWidth = on ? 3 : 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(130, y, 28, 0, 7);
+    ctx.fillStyle = on ? '#E8892E' : past ? 'rgba(232,137,46,.5)' : 'rgba(255,255,255,.12)'; ctx.fill();
+    text(past ? '✓' : String(i + 1), 130, y + 1, 30, 800, on || past ? '#0F1730' : 'rgba(255,255,255,.6)', 'center', 0);
+    text(label, 184, y + 1, 33, on ? 700 : 500, on ? '#fff' : 'rgba(255,255,255,.6)', 'left', 0);
+    ctx.restore();
+  });
+  const fk = eOut(seg(lt, 1.6, 2.4));
+  ctx.save(); ctx.globalAlpha *= fk;
+  text('TRL 3→4  ·  patente em depósito', W / 2, 1760, 30, 700, '#E8892E', 'center', 3);
+  text('com apoio do Instituto SENAI de Tecnologia', W / 2, 1815, 26, 500, 'rgba(255,255,255,.6)', 'center', 1);
+  ctx.restore();
+}
+
 // ---------- compositor ----------
-const draw = { intro: drawIntro, flow: drawFlow, grid: drawGrid, type: drawType, dash: drawDash, ui: drawUI };
-const sceneIdx = { intro: 1, flow: 2, grid: 3, type: 4, dash: 5, ui: 6 };
-const names = { flow: 'REAPROVEITAMENTO', grid: 'MERCADO', type: 'CHAMOTE', dash: 'VIABILIDADE', ui: 'PROTÓTIPO' };
+const draw = { intro: drawIntro, grid: drawGrid, flow: drawFlow, brick: drawBrick, sim: drawSim, type: drawType, dash: drawDash, ui: drawUI };
+const sceneIdx = { intro: 1, grid: 2, flow: 3, brick: 4, sim: 5, type: 6, dash: 7, ui: 8 };
+const names = { grid: 'MERCADO', flow: 'REAPROVEITAMENTO', brick: 'TRANSFORMAÇÃO', sim: 'PROTÓTIPO', type: 'CHAMOTE', dash: 'VIABILIDADE', ui: 'TECNOLOGIA' };
 
 function renderAt(t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -557,6 +811,10 @@ function renderAt(t) {
 }
 window.__ready = ready;
 window.renderAt = renderAt;
+window.prepare = async t => {
+  const s = SCENES.find(s => s.id === 'sim');
+  if (t >= s.a && t <= s.b) await loadSim(simFrame(t - s.a));
+};
 window.DURATION = DURATION;
 window.FPS = FPS;
 renderAt(0);
