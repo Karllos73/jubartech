@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Jubartech: tecnologia que transforma telhas e tijolos reprovados em chamote e devolve o material à produção.">
+<link rel="icon" href="img/logo.png">
+<title>Jubartech</title>
+<meta name="theme-color" content="#E3E7EB">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  /* pôster: prata no alto, ardósia embaixo (fixo nos dois temas, é a arte) */
+  --p-top: #E4E8EC; --p-mid: #B9C2CC; --p-low: #5F6E80; --p-bot: #222E3D;
+  --cobalt: #2445D8; --clay: #C25A35; --sun: #E8892E;
+  /* conteúdo */
+  --bg: #E9EDF0; --surface: #FFFFFF; --card: rgba(255, 255, 255, .7); --ink: #0F1730; --muted: #4E5A6C;
+  --line: rgba(15, 23, 48, .12); --pill: #FFFFFF; --pill-ink: #0F1730; --accent: var(--cobalt);
+  --shadow: rgba(24, 36, 58, .16); --num: #B04E2B; --slate: #6B7889;
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --text: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --e-out: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F151E; --surface: #161E2A; --card: rgba(255, 255, 255, .05); --ink: #EDF1F6; --muted: #A2ADBD;
+    --line: rgba(255, 255, 255, .1); --accent: #7D96FF; --shadow: rgba(0, 0, 0, .45); --num: #EE9467; --slate: #8C99AB; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F151E; --surface: #161E2A; --card: rgba(255, 255, 255, .05); --ink: #EDF1F6; --muted: #A2ADBD;
+  --line: rgba(255, 255, 255, .1); --accent: #7D96FF; --shadow: rgba(0, 0, 0, .45); --num: #EE9467; --slate: #8C99AB; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 16px; line-height: 1.55; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+.wrap { width: min(1240px, 100% - 32px); margin-inline: auto; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Pílulas brancas do pôster */
+.pill {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 18px;
+  border-radius: 999px; background: var(--pill); color: var(--pill-ink); text-decoration: none;
+  font-weight: 600; font-size: .95rem; letter-spacing: -0.01em; border: 0; cursor: pointer; font-family: inherit;
+  box-shadow: 0 10px 30px -14px rgba(15, 23, 48, .45);
+  transition: transform .35s var(--e-out), box-shadow .35s var(--e-out);
+}
+.pill:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -14px rgba(15, 23, 48, .55); }
+.pill:focus-visible, .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.pill svg { width: 15px; height: 15px; flex: none; }
+.pill .logo { width: 26px; height: 26px; margin-left: -8px; }
+.pill.dark { background: var(--pill-ink); color: #fff; }
+.pill.big { min-height: 56px; padding: 8px 26px; font-size: 1rem; }
+
+/* Topo */
+
+/* Hero em forma de pôster */
+.hero {
+  position: relative; min-height: 100svh; overflow: hidden; color: #fff; isolation: isolate;
+  background: linear-gradient(180deg, var(--p-top) 0%, var(--p-mid) 42%, var(--p-low) 72%, var(--p-bot) 100%);
+  display: flex; flex-direction: column;
+}
+.art { position: absolute; z-index: 0; inset: 0; }
+.art canvas { position: absolute; inset: 0; display: block; }
+
+.hero .side { position: relative; z-index: 2; margin-top: auto; padding-top: 110px; }
+.made { display: none; font-size: .86rem; line-height: 1.35; color: var(--pill-ink); font-weight: 600; max-width: 230px; }
+.made span { display: block; font-weight: 500; color: #33405A; }
+.headline { position: relative; z-index: 2; }
+.kicker { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(.8rem, 2.4vw, 1.35rem); letter-spacing: .42em; text-transform: uppercase; text-align: center; margin-right: -.42em; text-shadow: 0 2px 18px rgba(10, 18, 30, .35); }
+.mega { display: block; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 12.6vw, 12.5rem); line-height: .86; letter-spacing: -0.035em; text-align: center; text-transform: uppercase; white-space: nowrap; margin-top: .14em; text-shadow: 0 6px 40px rgba(10, 18, 30, .25); }
+.mega .ch { display: inline-block; }
+.lead-hero { margin: 18px auto 0; max-width: 36ch; text-align: center; color: rgba(255, 255, 255, .86); font-size: .98rem; }
+.hero-foot { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 26px 0 calc(58px + env(safe-area-inset-bottom, 0px)); }
+.who { display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
+.who .av { width: 46px; height: 46px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 2px rgba(255, 255, 255, .5); flex: none; }
+.who .av img { width: 30px; height: 30px; }
+.who b { display: block; font-weight: 600; font-size: .95rem; line-height: 1.2; }
+.who small { display: block; font-size: .8rem; color: rgba(255, 255, 255, .75); }
+@media (min-width: 900px) {
+  .made { display: block; position: absolute; left: 16px; top: 52%; }
+  .lead-hero { display: none; }
+  .hero-foot .lead-desk { display: block; }
+  .hero-foot { display: grid; grid-template-columns: 1fr auto 1fr; }
+}
+.lead-desk { display: none; max-width: 46ch; color: rgba(255, 255, 255, .82); font-size: .92rem; text-align: center; }
+@media (max-width: 899px) { .hero-foot { justify-content: center; } .hero-foot .who { display: none; } }
+
+/* Seções de conteúdo */
+.sheet { position: relative; z-index: 3; background: var(--bg); border-radius: 36px 36px 0 0; margin-top: -36px; }
+section { padding: clamp(72px, 10vw, 128px) 0; }
+.label { font-family: var(--display); font-weight: 400; font-size: .74rem; letter-spacing: .38em; text-transform: uppercase; color: var(--accent); }
+.h2 { font-family: var(--display); font-weight: 500; font-size: clamp(1.9rem, 5.4vw, 3.6rem); line-height: 1.02; letter-spacing: -0.035em; text-transform: uppercase; margin-top: 16px; max-width: 16ch; }
+
+.benef-grid { display: grid; gap: 16px; margin-top: 44px; }
+@media (min-width: 900px) { .benef-grid { grid-template-columns: 1.15fr 1fr; gap: 20px; align-items: stretch; } }
+.photo { position: relative; border-radius: 28px; overflow: hidden; min-height: 300px; background: linear-gradient(160deg, var(--p-mid), var(--p-bot)); box-shadow: 0 30px 60px -36px var(--shadow); }
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo .tag { position: absolute; left: 16px; bottom: 16px; }
+.benef-grid > div:last-child { display: grid; }
+.cards { display: grid; gap: 12px; grid-auto-rows: 1fr; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px 22px 18px 18px; display: flex; align-items: center; gap: 20px;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: border-color .35s var(--e-out), box-shadow .35s var(--e-out); }
+.card:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), 0 18px 40px -24px color-mix(in srgb, var(--accent) 60%, transparent); }
+.card .ic { width: 64px; height: 64px; flex: none; border-radius: 16px; display: grid; place-items: center; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 18%, transparent); }
+.card .ic svg { width: 34px; height: 34px; }
+.card .ic .hot { stroke: var(--sun); }
+.card h3 { font-family: var(--text); font-weight: 600; font-size: clamp(1.05rem, 2.4vw, 1.3rem); line-height: 1.25; letter-spacing: -0.01em; border-left: 2px solid var(--sun); padding-left: 18px; }
+
+/* Protótipo */
+.proto { position: relative; margin: 40px 0 0; border-radius: 32px; overflow: hidden; padding: clamp(70px, 9vw, 110px) 16px clamp(80px, 9vw, 100px);
+  background: linear-gradient(180deg, var(--p-top) 0%, var(--p-mid) 48%, var(--p-low) 100%); box-shadow: 0 40px 70px -46px var(--shadow); }
+.proto img { width: min(100%, 820px); margin-inline: auto; filter: drop-shadow(0 30px 30px rgba(20, 30, 50, .28)); }
+.proto .specs { position: absolute; left: 16px; top: 16px; display: flex; flex-wrap: wrap; gap: 8px; max-width: calc(100% - 32px); }
+.proto .specs .pill, .proto figcaption .pill { min-height: 38px; padding: 4px 14px; font-size: .82rem; }
+.proto figcaption { position: absolute; right: 16px; bottom: 16px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+@media (min-width: 900px) { .proto .specs { left: 28px; top: 28px; flex-direction: column; align-items: flex-start; } .proto figcaption { right: 28px; bottom: 28px; } }
+
+/* Vídeo da simulação */
+.sim { position: relative; margin: 20px 0 0; border-radius: 32px; overflow: hidden; background: var(--p-mid); box-shadow: 0 40px 70px -46px var(--shadow); aspect-ratio: 16 / 9; }
+.sim video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sim figcaption { position: absolute; left: 12px; bottom: 12px; min-height: 30px; padding: 3px 12px; font-size: .74rem; }
+@media (min-width: 640px) { .sim figcaption { left: 16px; bottom: 16px; min-height: 38px; padding: 4px 14px; font-size: .82rem; } }
+@media (min-width: 900px) { .sim figcaption { left: 28px; bottom: 28px; } }
+
+/* Seções de dados: mercado, viabilidade, ciência, proposta */
+.intro { margin-top: 20px; max-width: 62ch; color: var(--muted); font-size: 1.04rem; }
+.stats { margin-top: 36px; display: grid; gap: 12px; }
+@media (min-width: 720px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px 22px 20px; }
+.stat b { display: block; font-family: var(--display); font-weight: 500; font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1; letter-spacing: -0.04em; color: var(--num); white-space: nowrap; }
+.stat span { display: block; margin-top: 14px; font-weight: 600; }
+.stat small { display: block; color: var(--muted); font-size: .88rem; }
+.duo { margin-top: 12px; display: grid; gap: 12px; }
+@media (min-width: 900px) { .duo { grid-template-columns: 1.1fr 1fr; } }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+.panel h3, .cell h3 { font-family: var(--text); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+.panel p, .cell p { margin-top: 10px; color: var(--muted); font-size: .95rem; }
+.bars { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; }
+.bars li { display: grid; grid-template-columns: 8.4em 1fr 5.6em; align-items: center; gap: 12px; font-size: .92rem; }
+.bars .t { height: 14px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 7%, transparent); overflow: hidden; }
+.bars .f { display: block; height: 100%; width: var(--w); border-radius: 4px; background: var(--num); transform-origin: left center; }
+.bars .f.grey { background: var(--slate); }
+.bars .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.bars .v small { color: var(--muted); font-weight: 500; }
+.bars.cost li { grid-template-columns: 9.4em 1fr 5.4em; }
+@media (max-width: 479px) { .bars li { grid-template-columns: 6.8em 1fr 4.6em; gap: 10px; font-size: .86rem; } .bars.cost li { grid-template-columns: 6.8em 1fr 4.6em; } }
+.bars.cost .t { height: 28px; }
+.alert { border-left: 3px solid var(--num); }
+.save { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.save b { font-family: var(--display); font-weight: 500; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.04em; color: var(--num); }
+.note { margin-top: 14px; color: var(--muted); font-size: .8rem; }
+.grid2 { margin-top: 36px; display: grid; gap: 12px; }
+@media (min-width: 760px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+.cell { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+.cell h3 { border-left: 2px solid var(--sun); padding-left: 14px; }
+.cell.wide { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.cell.wide h3 { border-left-color: var(--accent); }
+.cell .k { display: block; margin-bottom: 12px; font-family: var(--display); font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
+.why { margin-top: 36px; display: grid; gap: 12px; }
+@media (min-width: 900px) { .why { grid-template-columns: repeat(3, 1fr); } }
+.why .cell { background: linear-gradient(180deg, var(--p-top), var(--p-mid)); color: #0F1730; border: 0; }
+.why .cell p { color: #33405A; }
+.why .cell .k { color: #2445D8; }
+
+/* Animações extras (estilo MotionSites) */
+.stat, .panel, .cell { position: relative; }
+/* moldura: um canto em laranja se desenha quando o cartão entra */
+.fx::before { content: ""; position: absolute; left: -1px; top: -1px; width: 38px; height: 38px; pointer-events: none;
+  border-top: 1.5px solid var(--sun); border-left: 1.5px solid var(--sun); border-top-left-radius: 22px;
+  clip-path: inset(0 100% 100% 0); transition: clip-path 1s cubic-bezier(.65, 0, .35, 1); }
+.fx.in::before { clip-path: inset(0 0 0 0); }
+/* holofote que segue o cursor dentro do cartão */
+.fx::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .4s var(--e-out);
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%); }
+.fx:hover::after { opacity: 1; }
+.w { display: inline-block; }
+/* botão em pílula: o fundo branco se estende até o círculo no hover */
+.pill.big.cta { position: relative; isolation: isolate; background: transparent; box-shadow: none; padding: 6px 6px 6px 26px; gap: 14px; }
+.cta::before { content: ""; position: absolute; z-index: -1; inset: 0 auto 0 0; width: calc(100% - 50px); border-radius: 999px; background: #fff;
+  box-shadow: 0 10px 30px -14px rgba(15, 23, 48, .45); transition: width .4s cubic-bezier(.25, .46, .45, .94); }
+.pill.big.cta:hover { box-shadow: none; }
+.cta:hover::before { width: 100%; }
+.cta .dot { width: 44px; height: 44px; border-radius: 50%; background: var(--sun); color: #0F1730; display: grid; place-items: center; flex: none;
+  transition: transform .4s cubic-bezier(.25, .46, .45, .94); }
+.cta:hover .dot { transform: translateX(-7px); }
+@media (prefers-reduced-motion: reduce) { .fx::before { clip-path: none; transition: none; } }
+
+/* Perguntas */
+.faq { margin-top: 40px; display: grid; gap: 10px; max-width: 880px; }
+.faq details { background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 22px; font-weight: 600; font-size: 1.02rem; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary i { width: 34px; height: 34px; border-radius: 50%; background: var(--pill-ink); flex: none; position: relative; transition: transform .4s var(--e-out); }
+:root[data-theme="dark"] .faq summary i { background: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .faq summary i { background: #fff; } }
+.faq summary i::before, .faq summary i::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.6px; background: var(--bg); translate: -50% -50%; }
+.faq summary i::after { rotate: 90deg; transition: rotate .4s var(--e-out); }
+.faq details[open] summary i::after { rotate: 0deg; }
+.faq .a { padding: 0 22px 22px; color: var(--muted); max-width: 64ch; }
+
+/* Convite final */
+.final { position: relative; overflow: hidden; color: #fff; text-align: center; isolation: isolate; padding: clamp(90px, 12vw, 150px) 0 clamp(48px, 7vw, 80px);
+  background: linear-gradient(180deg, var(--p-top) 0%, var(--p-mid) 38%, var(--p-low) 70%, var(--p-bot) 100%); }
+.final .art2 { position: absolute; inset: 0 0 auto; height: 72%; z-index: -1;
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent); mask-image: linear-gradient(180deg, #000 60%, transparent); }
+.final .art2 img, .final .art2 canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.final .art2 .hand { -webkit-mask-image: var(--m, none); mask-image: var(--m, none); will-change: transform; }
+.final .label { color: var(--pill-ink); }
+.final .mega { font-size: clamp(2.4rem, 11vw, 10.5rem); margin-top: clamp(150px, 26vw, 360px); }
+.final .mega span { display: block; }
+.final p { margin: 22px auto 0; max-width: 40ch; color: rgba(255, 255, 255, .85); }
+.final .ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
+footer { background: var(--p-bot); color: rgba(255, 255, 255, .62); font-size: .8rem; padding: 22px 0 calc(26px + env(safe-area-inset-bottom, 0px)); }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; border-top: 1px solid rgba(255, 255, 255, .12); padding-top: 20px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+</style>
+
+</head>
+<body>
+<main id="topo">
+  <div class="hero">
+    <div class="art" aria-hidden="true"><canvas id="po"></canvas></div>
+    <div class="wrap side">
+    </div>
+    <div class="wrap headline">
+      <h1><span class="kicker">Resíduo cerâmico vira</span><span class="mega">Chamote</span></h1>
+      <p class="lead-hero">Tecnologia que tritura telhas e tijolos reprovados e devolve o material à produção.</p>
+    </div>
+    <div class="wrap hero-foot">
+      <a class="who" href="https://www.instagram.com/jubartech/" target="_blank" rel="noopener"><span class="av"><img src="img/logo.png" alt=""></span><span><b>Jubartech</b><small>Reciclagem cerâmica</small></span></a>
+      <p class="lead-desk">Tecnologia que tritura telhas e tijolos reprovados e devolve o material à produção.</p>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <section id="mercado">
+      <div class="wrap">
+        <p class="label rv">O mercado</p>
+        <h2 class="h2 rv">Cerâmica vermelha no Cariri</h2>
+        <p class="intro rv">O Arranjo Produtivo Local de Cerâmica Vermelha da Região Metropolitana do Cariri depende muito de argila virgem e descarta todos os dias peças defeituosas, um passivo ambiental que pode virar chamote.</p>
+        <div class="stats">
+          <div class="stat fx rv"><b>17</b><span>olarias mapeadas</span><small>Unidades ativas no APL</small></div>
+          <div class="stat fx rv"><b>3% a 5%</b><span>de perda operacional</span><small>Volume que pode ser reprocessado</small></div>
+          <div class="stat fx rv"><b>R$ 11,98</b><span>de economia por tonelada</span><small>Estimativa frente à argila virgem</small></div>
+        </div>
+        <div class="duo">
+          <div class="panel fx rv">
+            <h3>Onde estão as 17 olarias</h3>
+            <ul class="bars" aria-label="Olarias por município">
+              <li title="Crato: 12 olarias (70,6%)"><span>Crato</span><span class="t"><span class="f" style="--w: 100%"></span></span><span class="v">12 <small>70,6%</small></span></li>
+              <li title="Jardim: 2 olarias (11,8%)"><span>Jardim</span><span class="t"><span class="f" style="--w: 16.7%"></span></span><span class="v">2 <small>11,8%</small></span></li>
+              <li title="Nova Olinda: 1 olaria (5,9%)"><span>Nova Olinda</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
+              <li title="Missão Velha: 1 olaria (5,9%)"><span>Missão Velha</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
+              <li title="Farias Brito: 1 olaria (5,9%)"><span>Farias Brito</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
+            </ul>
+          </div>
+          <div class="panel alert fx rv">
+            <h3>O gargalo dos moinhos tradicionais</h3>
+            <p>Os moinhos de martelos do mercado foram feitos para indústrias de grande porte. Custam de R$ 28.000 a R$ 85.000 e usam motores de 15 a 30 CV, com contas de energia inviáveis para as micro e pequenas olarias do Cariri.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="proposta" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Proposta de valor</p>
+        <h2 class="h2 rv">Por que o Eco&#8209;Moedor Cerâmico</h2>
+        <div class="why">
+          <div class="cell fx rv"><span class="k">Para o ceramista</span><h3>Menos custo, menos energia</h3><p>Equipamento mais de R$ 10 mil mais barato que os moinhos tradicionais, cerca de 66% menos energia e R$ 11,98 de economia por tonelada processada.</p></div>
+          <div class="cell fx rv"><span class="k">Para o produto</span><h3>Peças mais resistentes</h3><p>Telhas e blocos com menos trincas e absorção de água controlada.</p></div>
+          <div class="cell fx rv"><span class="k">Para a região</span><h3>Economia circular local</h3><p>Uma solução viável e sob medida para o APL de cerâmica do Cariri.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prototipo" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">O protótipo</p>
+        <h2 class="h2 rv">Eco-Moedor Cerâmico</h2>
+        <figure class="proto rv">
+          <img src="img/moedor.webp" width="1370" height="1006" alt="Modelo 3D do Eco-Moedor Cerâmico: funil de entrada, câmara de trituração, motor azul e esteira de saída" loading="lazy">
+          <figcaption><span class="pill dark">TRL 3→4</span><span class="pill dark">Patente em depósito</span></figcaption>
+        </figure>
+        <figure class="sim rv">
+          <video id="simVideo" width="1280" height="720" poster="img/simulacao.jpg" muted loop playsinline preload="metadata" aria-label="Simulação 3D: telhas entram no funil, são trituradas pelos rotores e saem como pó de chamote pela esteira"><source src="img/simulacao.mp4" type="video/mp4"><source src="img/simulacao.webm" type="video/webm"></video>
+          <figcaption class="pill">Simulação 3D do funcionamento</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="viabilidade" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Viabilidade</p>
+        <h2 class="h2 rv">Mais barato que argila nova</h2>
+        <div class="duo">
+          <div class="panel fx rv">
+            <h3>Custo por tonelada de matéria-prima</h3>
+            <ul class="bars cost" aria-label="Custo por tonelada">
+              <li title="Argila virgem: R$ 17,50 por tonelada (extração e transporte)"><span>Argila virgem</span><span class="t"><span class="f grey" style="--w: 100%"></span></span><span class="v">R$ 17,50</span></li>
+              <li title="Chamote reprocessado no Eco-Moedor Cerâmico: R$ 5,75 por tonelada"><span>Eco-Moedor Cerâmico</span><span class="t"><span class="f" style="--w: 32.9%"></span></span><span class="v">R$ 5,75</span></li>
+            </ul>
+            <div class="save"><b>R$ 11,98</b><span>de economia líquida por tonelada incorporada</span></div>
+          </div>
+          <div class="panel fx rv">
+            <h3>Retorno direto na massa</h3>
+            <p>Extrair e transportar argila virgem custa cerca de R$ 17,50 por tonelada. Reprocessar o chamote dentro da própria olaria com o Eco-Moedor Cerâmico custa cerca de R$ 5,75.</p>
+            <p class="note">Valores estimados a partir do protótipo em validação.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ciencia" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Ciência dos materiais</p>
+        <h2 class="h2 rv">Chamote que reforça a peça</h2>
+        <p class="intro rv">Ensaios experimentais e a literatura de cerâmica tradicional indicam que o chamote na faixa granulométrica certa funciona como elemento estrutural e estabilizador da massa.</p>
+        <div class="grid2">
+          <div class="cell fx rv"><h3>Incorporação ótima de 5%</h3><p>Adicionar 5% de chamote em massa na argila virgem aumenta a resistência mecânica depois da queima (1000 °C) e reduz a absorção de água.</p></div>
+          <div class="cell fx rv"><h3>Faixa granulométrica de 18 a 70 mesh</h3><p>A distância controlada entre os rolos evita moer demais e mantém os grãos no tamanho ideal para o empacotamento.</p></div>
+          <div class="cell fx rv"><h3>Menos microtrincas</h3><p>Reduz a diferença de retração durante a secagem e diminui a quebra de telhas e tijolos no forno.</p></div>
+          <div class="cell fx rv"><h3>Saúde e ergonomia (NR-15)</h3><p>A baixa rotação reduz o ruído e a poeira de sílica no ar, ajudando a prevenir doenças respiratórias ocupacionais.</p></div>
+          <div class="cell wide fx rv"><span class="k">Simbiose industrial</span><h3>Nova receita na construção civil</h3><p>Com granulometria controlada, as próprias olarias podem vender o chamote a concreteiras da região, como adição pozolânica (filler) para concreto autoadensável de alta resistência.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="beneficios" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Benefícios</p>
+        <h2 class="h2 rv">O que era perda volta para a massa</h2>
+        <div class="benef-grid">
+          <div class="photo rv"><img src="img/mao.jpg" width="1456" height="1088" alt="Mão robótica segurando pó de chamote ao lado de fragmentos de telha" loading="lazy"><span class="pill tag">Chamote · granulometria controlada</span></div>
+          <div>
+            <div class="cards">
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a9.5 9.5 0 0 1 16.5-5"/><path d="M24 3.5V8h-4.5"/><path d="M25 19a9.5 9.5 0 0 1-16.5 5"/><path d="M8 28.5V24h4.5"/><path class="hot" d="M12 20c0-5 3.5-8 8-8 0 5-3 8-8 8z"/><path class="hot" d="M12 20l4-4"/></svg></span><h3>Economia circular</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 27c-6-1-9-6-8-14 6 0 10 4 9 12"/><path d="M15 27c-1-4-3-7-6-9"/><path class="hot" d="M16 27c0-9 4-14 11-15 1 8-4 14-11 15z"/><path class="hot" d="M16 27c2-5 5-8 8-10"/></svg></span><h3>Economia de matéria-prima virgem</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6.5l-4.5 8"/><path d="M8 11.5l.5 3 3-.5"/><path d="M7.5 19.5L5.5 23a2 2 0 0 0 1.7 3H13"/><path class="hot" d="M19 26h6.5a2 2 0 0 0 1.7-3l-2.5-4.3"/><path class="hot" d="M22 28.5L19 26l3-2.5"/><path d="M24.5 13L20.5 6a2 2 0 0 0-3.5 0l-1 1.7"/><path d="M27 12l-2.5 1-1-3"/></svg></span><h3>Reintrodução dos resíduos no processo produtivo</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 27h22"/><rect x="7" y="19" width="4" height="8" rx="1"/><rect x="14" y="15" width="4" height="12" rx="1"/><rect x="21" y="11" width="4" height="16" rx="1"/><path class="hot" d="M6 15l7-6 4 3 8-7"/><path class="hot" d="M21 5h4v4"/></svg></span><h3>Aquisição mais acessível</h3></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="perguntas" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Perguntas</p>
+        <h2 class="h2 rv">O essencial</h2>
+        <div class="faq">
+          <details class="rv"><summary>O que é o Eco-Moedor Cerâmico?<i aria-hidden="true"></i></summary><p class="a">Um equipamento que tritura por compressão, refina e classifica telhas e tijolos reprovados, entregando chamote com granulometria controlada.</p></details>
+          <details class="rv"><summary>Vocês vendem a máquina?<i aria-hidden="true"></i></summary><p class="a">Não. A Jubartech licencia a tecnologia para fabricantes de equipamentos, que produzem e vendem o Eco-Moedor Cerâmico.</p></details>
+          <details class="rv"><summary>Em que estágio está o projeto?<i aria-hidden="true"></i></summary><p class="a">Protótipo em desenvolvimento, indo para o teste de conceito (TRL 3→4), com patente em depósito e apoio do Instituto SENAI de Tecnologia.</p></details>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="final" id="contato">
+    <div class="art2" aria-hidden="true"><img src="img/maos-fundo.jpg" width="1600" height="899" alt="" loading="lazy"><img class="hand hand-l" src="img/maos-limpo.jpg" width="1600" height="899" alt="" loading="lazy"><img class="hand hand-r" src="img/maos-limpo.jpg" width="1600" height="899" alt="" loading="lazy"><canvas></canvas></div>
+    <div class="wrap">
+      <p class="label rv">Próximo passo</p>
+      <h2 class="mega rv-m"><span>Vamos</span><span>conversar</span></h2>
+      <div class="ctas rv">
+        <a class="pill big cta" href="https://www.instagram.com/jubartech/" target="_blank" rel="noopener"><span>Instagram</span><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap"><span>Jubartech · reciclagem de resíduos cerâmicos</span></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+document.documentElement.lang = 'pt-BR';
+/* Copiar o @ */
+(function () {
+  const b = document.getElementById('copyAt');
+  if (!b) return;
+  b.addEventListener('click', () => {
+    const say = t => { b.textContent = t; setTimeout(() => { b.textContent = 'Copiar @jubartech'; }, 1800); };
+    try { navigator.clipboard.writeText('@jubartech').then(() => say('Copiado'), () => say('@jubartech')); } catch (e) { say('@jubartech'); }
+  });
+})();
+
+</script>
+<script>
+/* Topo: um tijolo cerâmico que se desfaz em pó de chamote, se amontoa e volta a se formar.
+   Tudo é função do tempo, então o mesmo código desenha um quadro parado quando não há movimento. */
+(function () {
+  const cv = document.getElementById('po'); if (!cv) return;
+  const hero = cv.closest('.hero'), ctx = cv.getContext('2d');
+  const still = navigator.webdriver || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CHAM = [[178, 76, 42], [196, 96, 56], [214, 126, 78], [226, 152, 100], [160, 66, 38], [236, 178, 128]];
+  const DUST = 5, STY = [];
+  CHAM.forEach(c => { STY.push('rgb(' + c + ')'); for (let a = 1; a <= DUST; a++) STY.push('rgba(' + c + ',' + (a / DUST * .8).toFixed(2) + ')'); });
+  const HOLD = 1.2, SWEEP = 3.1, HEAP = 8.5, BACK = 0.9, BACKDUR = 1.05, CYCLE = 10.9;
+  let W = 0, H = 0, dpr = 1, P = [], img = null, B = null, lastW = 0, lastH = 0;
+
+  const rnd = (s => () => (s = (s * 16807) % 2147483647) / 2147483647)(7);
+  const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  const out3 = x => 1 - Math.pow(1 - x, 3);
+
+  /* Tijolo de 6 furos (9 × 14 × 19 cm) em projeção, furos virados para a esquerda */
+  function project(a, p) {
+    const ca = Math.cos(a), sa = Math.sin(a), cp = Math.cos(p), sp = Math.sin(p);
+    return (x, y, z) => { x -= 9.5; y -= 4.5; z -= 7; const x1 = x * ca + z * sa, z1 = -x * sa + z * ca; return [x1, -(y * cp - z1 * sp)]; };
+  }
+  function drawBrick(bw) {
+    const pr = project(.62, .4);
+    const corners = []; [0, 19].forEach(x => [0, 9].forEach(y => [0, 14].forEach(z => corners.push(pr(x, y, z)))));
+    const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]);
+    const minX = Math.min(...xs), minY = Math.min(...ys), s = bw / (Math.max(...xs) - minX), bh = (Math.max(...ys) - minY) * s;
+    const c = document.createElement('canvas'); c.width = Math.ceil(bw * dpr); c.height = Math.ceil(bh * dpr);
+    const g = c.getContext('2d'); g.scale(dpr, dpr);
+    const P2 = (x, y, z) => { const q = pr(x, y, z); return [(q[0] - minX) * s, (q[1] - minY) * s]; };
+    const poly = (pts, fill) => { g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.closePath(); if (fill) { g.fillStyle = fill; g.fill(); } };
+    const grad = (a, b, c1, c2) => { const l = g.createLinearGradient(a[0], a[1], b[0], b[1]); l.addColorStop(0, c1); l.addColorStop(1, c2); return l; };
+    const top = [P2(0, 9, 0), P2(19, 9, 0), P2(19, 9, 14), P2(0, 9, 14)];
+    const end = [P2(0, 0, 0), P2(0, 9, 0), P2(0, 9, 14), P2(0, 0, 14)];
+    const side = [P2(0, 0, 14), P2(0, 9, 14), P2(19, 9, 14), P2(19, 0, 14)];
+    poly(top, grad(top[0], top[2], '#E29A6C', '#CF7546'));
+    poly(end, grad(end[1], end[3], '#A84C2C', '#8A3A21'));
+    poly(side, grad(side[1], side[3], '#C4643A', '#A9502D'));
+    /* furos: 3 colunas × 2 linhas na face da ponta, com a parede interna aparecendo */
+    const t = .95, hw = (14 - 4 * t) / 3, hh = (9 - 3 * t) / 2;
+    for (let r = 0; r < 2; r++) for (let k = 0; k < 3; k++) {
+      const z0 = t + k * (hw + t), y0 = t + r * (hh + t), z1 = z0 + hw, y1 = y0 + hh;
+      const hole = [P2(0, y0, z0), P2(0, y1, z0), P2(0, y1, z1), P2(0, y0, z1)];
+      g.save(); poly(hole, '#3A170D'); g.clip();
+      const d = 5;
+      poly([P2(0, y0, z0), P2(d, y0, z0), P2(d, y0, z1), P2(0, y0, z1)], '#7A3219');
+      poly([P2(0, y0, z0), P2(d, y0, z0), P2(d, y1, z0), P2(0, y1, z0)], '#5A2413');
+      g.restore();
+      g.strokeStyle = 'rgba(255, 210, 180, .28)'; g.lineWidth = .8; poly(hole); g.stroke();
+    }
+    g.strokeStyle = 'rgba(255, 228, 205, .55)'; g.lineWidth = 1.1;
+    g.beginPath(); g.moveTo(...end[1]); g.lineTo(...top[3]); g.lineTo(...side[2]); g.moveTo(...top[3]); g.lineTo(...side[0]); g.stroke();
+    /* textura de argila queimada */
+    const id = g.getImageData(0, 0, c.width, c.height), d8 = id.data;
+    for (let i = 0; i < d8.length; i += 4) if (d8[i + 3]) {
+      const n = (rnd() - .5) * 22 + (rnd() < .012 ? -40 : 0) + (rnd() < .008 ? 30 : 0);
+      d8[i] = Math.max(0, Math.min(255, d8[i] + n)); d8[i + 1] = Math.max(0, Math.min(255, d8[i + 1] + n * .8)); d8[i + 2] = Math.max(0, Math.min(255, d8[i + 2] + n * .6));
+    }
+    g.putImageData(id, 0, 0);
+    return { c, bw, bh, data: d8, cw: c.width };
+  }
+
+  function build() {
+    const r = hero.getBoundingClientRect();
+    W = r.width; H = r.height; if (!W || !H) return;
+    lastW = W; lastH = H;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    const phone = W < 640, kick = hero.querySelector('.kicker').getBoundingClientRect();
+    const base = Math.min(H * .9, kick.top - r.top - (phone ? 30 : 22));
+    const heapH = Math.min(H * .13, phone ? 92 : 118);
+    const topY = phone ? 64 : 72, avail = base - heapH - (phone ? 34 : 40) - topY;
+    let bw = Math.min(W * (phone ? .74 : .4), 600);
+    img = drawBrick(bw);
+    if (img.bh > avail) img = drawBrick(bw = bw * avail / img.bh);
+    const bx = W * (phone ? .54 : .56) - img.bw / 2, by = topY + (avail - img.bh) / 2;
+    B = { x: bx, y: by, w: img.bw, h: img.bh, base, heapH };
+    /* partículas amostradas do desenho */
+    const area = img.bw * img.bh * .8, st = Math.max(phone ? 3.2 : 3, Math.sqrt(area / (phone ? 4200 : 8500)));
+    P = [];
+    for (let y = st / 2; y < img.bh; y += st) for (let x = st / 2; x < img.bw; x += st) {
+      const i = (Math.floor(y * dpr) * img.cw + Math.floor(x * dpr)) * 4;
+      if (img.data[i + 3] < 200) continue;
+      const u = x / img.bw, fine = rnd() < .22;
+      P.push({ hx: bx + x, hy: by + y, home: 'rgb(' + img.data[i] + ',' + img.data[i + 1] + ',' + img.data[i + 2] + ')',
+        rel: HOLD + u * SWEEP + rnd() * .38, dur: 1.4 + rnd() * .95, wind: (phone ? 50 : 90) + rnd() * (phone ? 150 : 330), lift: -30 + rnd() * 90,
+        fine, ci: Math.floor(rnd() * CHAM.length), sz: fine ? .9 + rnd() * .7 : (phone ? 1.4 : 1.6) + rnd() * 1.1, st, n: rnd(), tx: 0, ty: 0, dx: 0, dy: 0 });
+    }
+    /* monte em forma de cone à esquerda, preenchido de baixo para cima na ordem de chegada */
+    const hc = bx + img.bw * .38, hr = Math.min(img.bw * .72, W * .44);
+    const spots = P.filter(p => !p.fine).map(() => {
+      const dx = (rnd() + rnd() - 1) * hr, h = heapH * Math.max(0, 1 - Math.pow(Math.abs(dx) / hr, 1.5));
+      return [hc + dx, base - rnd() * h];
+    }).sort((a, b) => b[1] - a[1]);
+    let j = 0;
+    P.filter(p => !p.fine).sort((a, b) => (a.rel + a.dur) - (b.rel + b.dur)).forEach(p => { p.tx = spots[j][0]; p.ty = spots[j][1]; j++; });
+    P.forEach(p => { if (p.fine) { p.tx = hc + (rnd() * 2 - 1) * hr * .8; p.ty = base - rnd() * heapH * .5; p.dx = p.hx - p.wind * 2.4 - 160 - rnd() * 200; p.dy = p.hy + (rnd() - .3) * 140; }
+      p.back = HEAP + (1 - (p.hy - by) / img.bh) * BACK + rnd() * .12; });
+  }
+
+  function pos(p, t, o) {
+    if (t < p.rel) { o[0] = p.hx; o[1] = p.hy; return 0; }
+    if (t < p.back) {
+      const k = Math.min(1, (t - p.rel) / p.dur), s = ease(k), m = 1 - s;
+      const ex = p.fine ? p.dx : p.tx, ey = p.fine ? p.dy : p.ty, cx = p.hx - p.wind, cy = p.hy - p.lift;
+      o[0] = m * m * p.hx + 2 * m * s * cx + s * s * ex; o[1] = m * m * p.hy + 2 * m * s * cy + s * s * ey;
+      return p.fine ? (k < 1 ? 1 - k : -1) : (k < 1 ? 1 : 2);
+    }
+    const k = Math.min(1, (t - p.back) / BACKDUR), s = out3(ease(k)) * .5 + ease(k) * .5, m = 1 - s;
+    const cx = (p.tx + p.hx) / 2 - 40 * (p.n - .5), cy = Math.min(p.ty, p.hy) - 70;
+    o[0] = m * m * p.tx + 2 * m * s * cx + s * s * p.hx; o[1] = m * m * p.ty + 2 * m * s * cy + s * s * p.hy;
+    return k < 1 ? 3 : 4;
+  }
+
+  const A = [0, 0], Bq = [0, 0], bins = STY.map(() => []);
+  function frame(t) {
+    if (!B) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const sweepT = (t - HOLD) / SWEEP, frontX = B.x + sweepT * B.w;
+    /* tijolo inteiro: o bitmap à direita da frente de moagem, ou a parte já remontada de baixo para cima */
+    const band = .38 / SWEEP * B.w;
+    if (t < HEAP) {
+      const cx = Math.max(B.x, frontX + band);
+      if (cx < B.x + B.w) ctx.drawImage(img.c, (cx - B.x) * dpr, 0, (B.x + B.w - cx) * dpr, img.c.height, cx, B.y, B.x + B.w - cx, B.h);
+    } else {
+      const done = (t - HEAP - BACKDUR - .12) / BACK, cy = B.y + B.h * (1 - done);
+      if (cy < B.y + B.h) { const yy = Math.max(B.y, cy); ctx.drawImage(img.c, 0, (yy - B.y) * dpr, img.c.width, (B.y + B.h - yy) * dpr, B.x, yy, B.w, B.y + B.h - yy); }
+    }
+    bins.forEach(b => b.length = 0);
+    const inBitmapA = x => t < HEAP && x >= frontX + band;
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i], st = pos(p, t, A);
+      if (st === 0) { if (!inBitmapA(p.hx) && t < HEAP) { ctx.fillStyle = p.home; ctx.fillRect(A[0] - p.st / 2, A[1] - p.st / 2, p.st + .6, p.st + .6); } continue; }
+      if (st === -1) continue;
+      if (st === 4) { const done = (t - HEAP - BACKDUR - .12) / BACK; if (p.hy >= B.y + B.h * (1 - done)) continue; ctx.fillStyle = p.home; ctx.fillRect(A[0] - p.st / 2, A[1] - p.st / 2, p.st + .6, p.st + .6); continue; }
+      pos(p, t - .045, Bq);
+      const vx = A[0] - Bq[0], tail = st >= 2 ? 0 : vx * 1.7, sz = st === 3 ? p.sz + (p.st - p.sz) * Math.max(0, (t - p.back) / BACKDUR) : p.sz;
+      let si = p.ci * (DUST + 1);
+      if (p.fine && st > 0 && st < 1) si += 1 + Math.min(DUST - 1, Math.floor(st * DUST));
+      if (p.fine && st === 3) si += 1 + Math.min(DUST - 1, Math.floor(Math.max(0, (t - p.back) / BACKDUR) * DUST));
+      const x0 = Math.min(A[0], A[0] - tail);
+      bins[si].push(x0, A[1], Math.abs(tail) + sz, sz * (Math.abs(tail) > 4 ? .8 : 1));
+    }
+    for (let b = 0; b < bins.length; b++) {
+      const q = bins[b]; if (!q.length) continue;
+      ctx.fillStyle = STY[b]; ctx.beginPath();
+      for (let i = 0; i < q.length; i += 4) ctx.rect(q[i], q[i + 1], q[i + 2], q[i + 3]);
+      ctx.fill();
+    }
+    /* linha azul da moagem passando pelo tijolo */
+    if (sweepT > -.02 && sweepT < 1.04) {
+      const a = Math.min(1, Math.min(sweepT + .02, 1.04 - sweepT) * 12), x = Math.min(frontX + band * .5, B.x + B.w);
+      ctx.save(); ctx.globalAlpha = a;
+      const gl = ctx.createLinearGradient(x - 14, 0, x + 14, 0);
+      gl.addColorStop(0, 'rgba(36,69,216,0)'); gl.addColorStop(.5, 'rgba(36,69,216,.38)'); gl.addColorStop(1, 'rgba(36,69,216,0)');
+      ctx.fillStyle = gl; ctx.fillRect(x - 14, B.y - 18, 28, B.h + 36);
+      ctx.shadowColor = 'rgba(36,69,216,.9)'; ctx.shadowBlur = 10;
+      ctx.fillStyle = '#EEF2FF'; ctx.fillRect(x - .75, B.y - 14, 1.5, B.h + 28);
+      ctx.restore();
+    }
+  }
+
+  build();
+  if (still) { frame(3.4); }
+  let t0 = performance.now(), vis = true, raf = 0;
+  const loop = now => { frame(((now - t0) / 1000) % CYCLE); raf = requestAnimationFrame(loop); };
+  const play = () => { if (!still && vis && !document.hidden && !raf) raf = requestAnimationFrame(loop); };
+  const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+  if (!still) {
+    new IntersectionObserver(e => { vis = e[0].isIntersecting; vis ? play() : stop(); }).observe(hero);
+    document.addEventListener('visibilitychange', () => document.hidden ? stop() : play());
+    play();
+  }
+  let rt = 0;
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => {
+    const r = hero.getBoundingClientRect(); if (Math.abs(r.width - lastW) < 2 && Math.abs(r.height - lastH) < 120) return;
+    build(); if (still) frame(3.4);
+  }, 180); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { build(); if (still) frame(3.4); });
+  window.__po = frame;
+})();
+
+</script>
+<script>
+/* Vídeo da simulação: toca sozinho, sem som, só enquanto está na tela */
+(function () {
+  const v = document.getElementById('simVideo'); if (!v) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; return; }
+  if (!('IntersectionObserver' in window)) { v.play().catch(() => { v.controls = true; }); return; }
+  new IntersectionObserver(e => { if (e[0].isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); }, { threshold: .25 }).observe(v);
+})();
+
+/* Movimento: só com GSAP carregado, sem pedido de menos movimento e fora de captura automática.
+   Sem isso, a página fica completa e parada. */
+(function () {
+  if (!window.gsap || !window.ScrollTrigger) return;
+  if (navigator.webdriver || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  gsap.registerPlugin(ScrollTrigger);
+  const desk = matchMedia('(min-width: 900px) and (pointer: fine)').matches;
+  const $$ = q => gsap.utils.toArray(q);
+
+  if (desk && window.Lenis) {
+    const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href^="#"]'); if (!a) return;
+      const id = a.getAttribute('href'), t = id === '#topo' ? 0 : document.querySelector(id);
+      if (t === null) return; e.preventDefault(); lenis.scrollTo(t);
+    });
+  }
+
+  /* Palavra gigante: letras sobem uma a uma */
+  const mega = document.querySelector('.hero .mega');
+  mega.innerHTML = '<span class="sr">' + mega.textContent + '</span>' + mega.textContent.split('').map(c => '<span class="ch" aria-hidden="true">' + c + '</span>').join('');
+  const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  intro.from('.art', { opacity: 0, duration: 1.4 }, 0)
+    .from('.kicker', { opacity: 0, letterSpacing: '1em', duration: 1.4 }, .25)
+    .from('.hero .mega .ch', { yPercent: 110, opacity: 0, duration: 1.1, stagger: .06 }, .35)
+    .from('.lead-hero, .hero-foot > *', { y: 24, opacity: 0, duration: .9, stagger: .08 }, .8);
+
+  /* a arte acompanha o ponteiro, devagar (só no desktop) */
+  const art = document.querySelector('.art');
+  if (desk) {
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+    addEventListener('pointermove', e => { tx = e.clientX / innerWidth - .5; ty = e.clientY / innerHeight - .5; }, { passive: true });
+    gsap.ticker.add(() => { cx += (tx - cx) * .045; cy += (ty - cy) * .045; gsap.set(art, { x: -cx * 22, y: -cy * 14 }); });
+  }
+
+  /* O pôster recua ao rolar */
+  gsap.to('.hero .headline', { yPercent: -30, opacity: .2, ease: 'none', scrollTrigger: { trigger: '.hero', start: '30% top', end: 'bottom top', scrub: .6 } });
+
+  /* Rolagem com desfoque e opacidade no site inteiro: cada bloco sai do desfoque ao entrar
+     e volta a se apagar e desfocar ao sair pelo alto. No celular o desfoque é menor. */
+  const BLUR = desk ? 12 : 7;
+  const docEnd = () => document.documentElement.scrollHeight - innerHeight;
+  /* Títulos: palavras entram uma a uma saindo do desfoque (Vision Reveal), presas à rolagem */
+  const heads = $$('.h2.rv');
+  heads.forEach(h => {
+    h.classList.remove('rv');
+    const txt = h.textContent.trim();
+    h.setAttribute('aria-label', txt);
+    h.innerHTML = txt.split(/\s+/).map(w => '<span class="w" aria-hidden="true">' + w + '</span>').join(' ');
+    gsap.fromTo(h.querySelectorAll('.w'), { opacity: 0, y: '.45em', filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', ease: 'power2.out', stagger: .12,
+      scrollTrigger: { trigger: h, start: 'top 95%', end: 'top 62%', scrub: desk ? .6 : .35 } });
+    gsap.fromTo(h, { opacity: 1, filter: 'blur(0px)' }, { y: desk ? -40 : -20, opacity: .12, filter: 'blur(' + Math.round(BLUR * .7) + 'px)', ease: 'power1.in', immediateRender: false,
+      scrollTrigger: { trigger: h, start: 'bottom 16%', end: 'bottom top', scrub: desk ? .6 : .35 } });
+  });
+
+  $$('.rv, .final .mega span').forEach(el => {
+    const top = el.getBoundingClientRect().top + scrollY;
+    const from = { y: desk ? 60 : 36, opacity: 0, filter: 'blur(' + BLUR + 'px)' };
+    const to = { y: 0, opacity: 1, filter: 'blur(0px)' };
+    if (top > docEnd() + innerHeight * 0.62) {
+      /* perto do fim não há rolagem para o efeito preso: entra quando aparece */
+      gsap.fromTo(el, from, Object.assign({}, to, { duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top bottom', toggleActions: 'play none none reverse' } }));
+      return;
+    }
+    /* entra no primeiro quarto da tela e só se apaga quando já está saindo pelo alto */
+    const sc = desk ? .6 : .35;
+    gsap.fromTo(el, from, Object.assign({}, to, { ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top bottom', end: 'top 78%', scrub: sc } }));
+    gsap.fromTo(el, to, { y: desk ? -40 : -20, opacity: .12, filter: 'blur(' + Math.round(BLUR * .7) + 'px)', ease: 'power1.in', immediateRender: false,
+      scrollTrigger: { trigger: el, start: 'bottom 16%', end: 'bottom top', scrub: sc } });
+  });
+
+  /* Rótulos que se decodificam (Monolith): letras embaralhadas resolvem da esquerda para a direita */
+  const AZ = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const decode = el => {
+    const txt = el.dataset.txt || (el.dataset.txt = el.textContent), n = txt.length, t0 = performance.now(), D = 260 + n * 22;
+    el.setAttribute('aria-label', txt);
+    const step = now => {
+      const p = Math.min(1, (now - t0) / D) * (n + 4) - 4;
+      let out = '';
+      for (let i = 0; i < n; i++) out += (i < p || txt[i] === ' ') ? txt[i] : i < p + 4 ? AZ[Math.random() * 26 | 0] : '\u00a0';
+      el.textContent = out;
+      if (p < n) requestAnimationFrame(step); else el.textContent = txt;
+    };
+    requestAnimationFrame(step);
+  };
+  $$('.label, .cell .k').forEach(el => ScrollTrigger.create({ trigger: el, start: 'top 90%', onEnter: () => decode(el), onEnterBack: () => decode(el) }));
+
+  /* Números contam até o valor quando aparecem */
+  const fmt = (v, d) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  $$('.stat b, .save b').forEach(el => {
+    const txt = el.textContent, parts = txt.split(/(\d+(?:,\d+)?)/);
+    const nums = parts.map(t => /^\d/.test(t) ? { v: parseFloat(t.replace(',', '.')), d: (t.split(',')[1] || '').length } : null);
+    el.setAttribute('aria-label', txt);
+    const o = { k: 0 };
+    const draw = () => { el.textContent = parts.map((t, i) => nums[i] ? fmt(nums[i].v * o.k, nums[i].d) : t).join(''); };
+    gsap.to(o, { k: 1, duration: 1.6, ease: 'power3.out', onUpdate: draw, onStart: draw,
+      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reset' }, onReverseComplete: draw });
+    o.k = 0; draw();
+  });
+
+  /* Cartões: canto que se desenha na entrada; no desktop, inclinação 3D e holofote que seguem o cursor */
+  $$('.fx').forEach(el => {
+    ScrollTrigger.create({ trigger: el, start: 'top 85%', onEnter: () => el.classList.add('in'), onLeaveBack: () => el.classList.remove('in') });
+    if (!desk) return;
+    const rx = gsap.quickTo(el, 'rotationX', { duration: .6, ease: 'power3.out' }), ry = gsap.quickTo(el, 'rotationY', { duration: .6, ease: 'power3.out' });
+    gsap.set(el, { transformPerspective: 900 });
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--mx', (x * 100).toFixed(1) + '%'); el.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+      rx((.5 - y) * 6); ry((x - .5) * 6);
+    });
+    el.addEventListener('pointerleave', () => { rx(0); ry(0); });
+  });
+
+  /* Foto e vídeo se abrem como uma janela ao entrar */
+  $$('.photo, .sim').forEach(el => gsap.fromTo(el, { clipPath: 'inset(9% 7% 9% 7% round 32px)' }, { clipPath: 'inset(0% 0% 0% 0% round 28px)', ease: 'none',
+    scrollTrigger: { trigger: el, start: 'top bottom', end: 'top 45%', scrub: desk ? .6 : .35 } }));
+
+  /* Botões do convite final atraem o cursor */
+  if (desk) $$('.final .pill').forEach(b => {
+    const qx = gsap.quickTo(b, 'x', { duration: .5, ease: 'power3.out' }), qy = gsap.quickTo(b, 'y', { duration: .5, ease: 'power3.out' });
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); qx((e.clientX - r.left - r.width / 2) * .25); qy((e.clientY - r.top - r.height / 2) * .35); });
+    b.addEventListener('pointerleave', () => { qx(0); qy(0); });
+  });
+
+  /* Imagens, vídeo e fontes que terminam de carregar depois mudam alturas: remede os gatilhos */
+  let rf = 0; const refresh = () => { clearTimeout(rf); rf = setTimeout(() => ScrollTrigger.refresh(), 150); };
+  $$('img').forEach(i => { if (!i.complete) i.addEventListener('load', refresh, { once: true }); });
+  if (document.fonts) document.fonts.ready.then(refresh);
+  if ('ResizeObserver' in window) { let lh = 0; new ResizeObserver(() => { const h = document.body.scrollHeight; if (Math.abs(h - lh) > 2) { lh = h; refresh(); } }).observe(document.body); }
+
+  /* Barras dos gráficos crescem a partir da base ao aparecer */
+  $$('.bars').forEach(b => gsap.from(b.querySelectorAll('.f'), { scaleX: 0, duration: 1.2, ease: 'expo.out', stagger: .08,
+    scrollTrigger: { trigger: b, start: 'top 85%', toggleActions: 'play none none reverse' } }));
+
+  /* O pôster do topo se desfaz em desfoque ao rolar */
+  gsap.to('.art', { filter: 'blur(' + BLUR + 'px)', ease: 'none', scrollTrigger: { trigger: '.hero', start: '40% top', end: 'bottom top', scrub: .6 } });
+  gsap.to('.art canvas', { opacity: .35, ease: 'none', scrollTrigger: { trigger: '.hero', start: '35% top', end: 'bottom top', scrub: .6 } });
+  gsap.to('.hero .headline', { filter: 'blur(' + BLUR + 'px)', ease: 'none', scrollTrigger: { trigger: '.hero', start: '50% top', end: 'bottom top', scrub: .6 } });
+  gsap.fromTo('.final .art2', { opacity: 0, filter: 'blur(' + BLUR + 'px)' }, { opacity: 1, filter: 'blur(0px)', ease: 'none',
+    scrollTrigger: { trigger: '.final', start: 'top bottom', end: 'top 30%', scrub: .6 } });
+
+  /* O protótipo chega deslizando com o rastro, e as etiquetas entram em sequência */
+  gsap.from('.proto img', { xPercent: desk ? -14 : 0, opacity: 0, filter: 'blur(' + BLUR + 'px)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.proto', start: 'top 80%', toggleActions: 'play none none reverse' } });
+  gsap.from('.proto .pill', { y: 16, opacity: 0, duration: .7, ease: 'power3.out', stagger: .08, scrollTrigger: { trigger: '.proto', start: 'top 70%', toggleActions: 'play none none reverse' } });
+
+
+  addEventListener('load', () => ScrollTrigger.refresh());
+})();
+</script>
+<script>
+/* Convite final: as duas mãos se aproximam com a rolagem e, entre os dedos, um tijolo vira pó de chamote.
+   Depois de chegar ao fim, o tijolo se refaz e volta a virar pó em ciclo. Sem movimento, fica um quadro parado. */
+(function () {
+  const box = document.querySelector('.final .art2'); if (!box) return;
+  const L = box.querySelector('.hand-l'), R = box.querySelector('.hand-r'), cv = box.querySelector('canvas'), ctx = cv.getContext('2d');
+  const still = navigator.webdriver || matchMedia('(prefers-reduced-motion: reduce)').matches || !window.gsap || !window.ScrollTrigger;
+  /* posições na foto original (1600 × 899): centro do vão e pontas dos dedos */
+  const IW = 1600, IH = 899, CX = .4915, CY = .494, TL = .452, TR = .53;
+  const CHAM = ['rgb(178,76,42)', 'rgb(196,96,56)', 'rgb(214,126,78)', 'rgb(226,152,100)', 'rgb(160,66,38)', 'rgb(236,178,128)'];
+  const rnd = (s => () => (s = (s * 16807) % 2147483647) / 2147483647)(11);
+  const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  const cl = x => Math.max(0, Math.min(1, x));
+  let W = 0, H = 0, dpr = 1, P = [], B = null, img = null, p = still ? 1 : 0, c = 0, back = 0;
+
+  function brick(bw) {
+    const a = .7, q = .42, ca = Math.cos(a), sa = Math.sin(a), cq = Math.cos(q), sq = Math.sin(q);
+    const pr = (x, y, z) => { x -= 9.5; y -= 4.5; z -= 7; const x1 = x * ca + z * sa, z1 = -x * sa + z * ca; return [x1, -(y * cq - z1 * sq)]; };
+    const cs = []; [0, 19].forEach(x => [0, 9].forEach(y => [0, 14].forEach(z => cs.push(pr(x, y, z)))));
+    const mx = Math.min(...cs.map(v => v[0])), my = Math.min(...cs.map(v => v[1]));
+    const s = bw / (Math.max(...cs.map(v => v[0])) - mx), bh = (Math.max(...cs.map(v => v[1])) - my) * s;
+    const c2 = document.createElement('canvas'); c2.width = Math.ceil(bw * dpr); c2.height = Math.ceil(bh * dpr);
+    const g = c2.getContext('2d'); g.scale(dpr, dpr);
+    const P2 = (x, y, z) => { const v = pr(x, y, z); return [(v[0] - mx) * s, (v[1] - my) * s]; };
+    const poly = (pts, f) => { g.beginPath(); pts.forEach((v, i) => i ? g.lineTo(v[0], v[1]) : g.moveTo(v[0], v[1])); g.closePath(); if (f) { g.fillStyle = f; g.fill(); } };
+    poly([P2(0, 9, 0), P2(19, 9, 0), P2(19, 9, 14), P2(0, 9, 14)], '#DB8C5D');
+    poly([P2(0, 0, 0), P2(0, 9, 0), P2(0, 9, 14), P2(0, 0, 14)], '#9A4427');
+    poly([P2(0, 0, 14), P2(0, 9, 14), P2(19, 9, 14), P2(19, 0, 14)], '#B95A34');
+    const t = .95, hw = (14 - 4 * t) / 3, hh = (9 - 3 * t) / 2;
+    for (let r = 0; r < 2; r++) for (let k = 0; k < 3; k++) {
+      const z0 = t + k * (hw + t), y0 = t + r * (hh + t);
+      poly([P2(0, y0, z0), P2(0, y0 + hh, z0), P2(0, y0 + hh, z0 + hw), P2(0, y0, z0 + hw)], '#3A170D');
+    }
+    const id = g.getImageData(0, 0, c2.width, c2.height), d = id.data;
+    for (let i = 0; i < d.length; i += 4) if (d[i + 3]) { const n = (rnd() - .5) * 20; d[i] += n; d[i + 1] += n * .8; d[i + 2] += n * .6; }
+    g.putImageData(id, 0, 0);
+    return { c: c2, bw, bh, d, cw: c2.width };
+  }
+
+  function layout() {
+    const r = box.getBoundingClientRect(); W = r.width; H = r.height; if (!W || !H) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const sc = Math.max(W / IW, H / IH), iw = IW * sc, ih = IH * sc, ox = (W - iw) / 2, oy = (H - ih) * .4;
+    const X = f => ox + f * iw, Y = f => oy + f * ih, cx = X(CX), lt = X(TL), rt = X(TR);
+    /* cada mão é a foto inteira recortada até o meio do vão, com a borda interna esfumada */
+    L.style.setProperty('--m', 'linear-gradient(90deg, #000 ' + (lt + 3).toFixed(1) + 'px, transparent ' + cx.toFixed(1) + 'px)');
+    R.style.setProperty('--m', 'linear-gradient(90deg, transparent ' + cx.toFixed(1) + 'px, #000 ' + (rt - 3).toFixed(1) + 'px)');
+    img = brick(Math.max(34, (rt - lt) * .62));
+    B = { x: cx - img.bw / 2, y: Y(CY) - img.bh / 2, w: img.bw, h: img.bh, travel: W * (W < 640 ? .3 : .2) };
+    const st = Math.max(1.6, img.bw / 46);
+    P = [];
+    for (let y = st / 2; y < img.bh; y += st) for (let x = st / 2; x < img.bw; x += st) {
+      const i = (Math.floor(y * dpr) * img.cw + Math.floor(x * dpr)) * 4; if (img.d[i + 3] < 200) continue;
+      const u = x / img.bw, fine = rnd() < .3, side = u < .5 ? -1 : 1;
+      P.push({ hx: B.x + x, hy: B.y + y, home: 'rgb(' + img.d[i] + ',' + img.d[i + 1] + ',' + img.d[i + 2] + ')', st, fine, side,
+        rel: .5 * (1 - Math.abs(u - .5) * 2) + .45 * rnd(), ci: rnd() * CHAM.length | 0, sz: fine ? .8 + rnd() * .6 : 1.1 + rnd() * .9,
+        drift: (40 + rnd() * 160) * (W < 640 ? .6 : 1), lift: (rnd() - .5) * 40, tx: 0, ty: 0 });
+    }
+    /* montinho de pó logo abaixo do tijolo */
+    const base = B.y + B.h * 1.9, hr = B.w * .95, hh2 = B.h * .7;
+    const spots = P.filter(q => !q.fine).map(() => { const dx = (rnd() + rnd() - 1) * hr; return [B.x + B.w / 2 + dx, base - rnd() * hh2 * Math.max(0, 1 - Math.pow(Math.abs(dx) / hr, 1.4))]; }).sort((a, b) => b[1] - a[1]);
+    let j = 0; P.filter(q => !q.fine).sort((a, b) => a.rel - b.rel).forEach(q => { q.tx = spots[j][0]; q.ty = spots[j][1]; j++; });
+    draw();
+  }
+
+  function draw() {
+    if (!B) return;
+    const a = 1 - ease(cl(p / .6));
+    L.style.transform = 'translate3d(' + (-a * B.travel).toFixed(1) + 'px,0,0)';
+    R.style.transform = 'translate3d(' + (a * B.travel).toFixed(1) + 'px,0,0)';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const bob = Math.sin(p * 6) * 2 * (1 - c);
+    if (c <= 0 && back === 0) { ctx.drawImage(img.c, B.x, B.y + bob, B.w, B.h); return; }
+    for (const q of P) {
+      const k = back ? 1 - cl((back - (1 - (q.hy - B.y) / B.h) * .35) / .65) : cl((c - q.rel) / .5);
+      if (k <= 0) { ctx.fillStyle = q.home; ctx.fillRect(q.hx - q.st / 2, q.hy - q.st / 2 + bob, q.st + .5, q.st + .5); continue; }
+      let x, y, w, h, al = 1;
+      if (q.fine) {
+        if (back) continue;
+        const e = ease(k); x = q.hx + q.side * q.drift * e; y = q.hy + q.lift * e + 30 * k * k; al = 1 - k;
+        w = q.sz + q.drift * .35 * (1 - k) * (k > .02 ? 1 : 0); h = q.sz;
+        if (q.side < 0) x -= w - q.sz;
+      } else {
+        const ex = ease(k); x = q.hx + (q.tx - q.hx) * ex + q.side * 14 * Math.sin(Math.PI * k); y = q.hy + (q.ty - q.hy) * k * k;
+        w = h = back ? q.sz + (q.st - q.sz) * (1 - k) : q.sz;
+      }
+      ctx.globalAlpha = al; ctx.fillStyle = CHAM[q.ci]; ctx.fillRect(x, y, w, h);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  layout();
+  addEventListener('resize', () => { clearTimeout(layout.t); layout.t = setTimeout(layout, 200); });
+  box.querySelectorAll('img').forEach(i => { if (!i.complete) i.addEventListener('load', layout, { once: true }); });
+  if (still) { p = 1; c = .55; draw(); return; }
+
+  /* rolagem: as mãos chegam (0–60%) e o tijolo se desfaz (45–100%); no fim, o ciclo segue sozinho */
+  let raf = 0, t0 = 0;
+  const CYC = 6.4;
+  const loop = now => {
+    const t = ((now - t0) / 1000) % CYC;
+    if (t < 1.4) { c = 1; back = 0; } else if (t < 2.7) { c = 1; back = ease((t - 1.4) / 1.3); } else if (t < 3.5) { c = 0; back = 0; } else { back = 0; c = (t - 3.5) / 2.9; }
+    draw(); raf = requestAnimationFrame(loop);
+  };
+  ScrollTrigger.create({ trigger: '.final', start: 'top 80%', end: 'bottom bottom', scrub: .6,
+    onUpdate: s => {
+      p = s.progress;
+      if (p > .995) { if (!raf) { t0 = performance.now(); raf = requestAnimationFrame(loop); } return; }
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      back = 0; c = cl((p - .45) / .5); draw();
+    } });
+})();
+
+</script>
+
+</body>
+</html>
