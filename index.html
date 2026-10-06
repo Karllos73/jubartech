@@ -79,7 +79,7 @@ h1, h2, h3, p { margin: 0; }
 .mega .ch { display: inline-block; }
 .lead-hero { margin: 18px auto 0; max-width: 36ch; text-align: center; color: rgba(255, 255, 255, .86); font-size: .98rem; }
 .hero-foot { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 26px 0 calc(58px + env(safe-area-inset-bottom, 0px)); }
-.brand { position: absolute; z-index: 3; top: max(18px, env(safe-area-inset-top, 0px)); left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
+.brand { position: fixed; z-index: 50; top: max(18px, env(safe-area-inset-top, 0px)); left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
 .brand .who { pointer-events: auto; }
 .who { display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; padding: 6px 20px 6px 6px; border-radius: 999px;
   background: rgba(15, 23, 48, .55); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 12px 30px -16px rgba(15, 23, 48, .6); white-space: nowrap; }
@@ -219,6 +219,10 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 .final .art2 img, .final .art2 canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
 .final .art2 .hand { -webkit-mask-image: var(--m, none); mask-image: var(--m, none); will-change: transform; }
 .final .label { color: var(--pill-ink); }
+/* passagem suave da cor das seções para o céu do convite final */
+.final::before { content: ""; position: absolute; z-index: 0; inset: 0 0 auto; height: clamp(160px, 22vw, 280px); pointer-events: none;
+  background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 55%, transparent) 45%, transparent 100%); }
+.final > .wrap { position: relative; z-index: 1; }
 .final .mega { font-size: clamp(2.4rem, 11vw, 10.5rem); margin-top: clamp(150px, 26vw, 360px); }
 .final .mega span { display: block; }
 .final p { margin: 22px auto 0; max-width: 40ch; color: rgba(255, 255, 255, .85); }
@@ -229,14 +233,14 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
 </style>
 
+<div class="brand">
+        <a class="who" href="https://www.instagram.com/jubartech/" target="_blank" rel="noopener"><span class="av"><img src="img/logo.png" alt=""></span><span><b>Jubartech</b><small>Reciclagem cerâmica</small></span></a>
+    </div>
 </head>
 <body>
 <main id="topo">
   <div class="hero">
     <div class="art" aria-hidden="true"><canvas id="po"></canvas></div>
-    <div class="brand">
-        <a class="who" href="https://www.instagram.com/jubartech/" target="_blank" rel="noopener"><span class="av"><img src="img/logo.png" alt=""></span><span><b>Jubartech</b><small>Reciclagem cerâmica</small></span></a>
-    </div>
     <div class="wrap side">
     </div>
     <div class="wrap headline">
