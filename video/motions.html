@@ -376,7 +376,7 @@ function drawDash(t, lt) {
 
   // anel: 66% menos energia
   card(72, 810, 450, 540, 1.1, (x, y, w, h) => {
-    text('ENERGIA', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
+    text('POTÊNCIA', x + 40, y + 60, 26, 700, 'rgba(255,255,255,.55)', 'left', 5);
     const cx = x + w / 2, R = 140, ccy = y + 285;
     ctx.lineWidth = 34; ctx.lineCap = 'round';
     ctx.strokeStyle = 'rgba(255,255,255,.1)';
@@ -387,7 +387,7 @@ function drawDash(t, lt) {
     ctx.strokeStyle = gr;
     ctx.beginPath(); ctx.arc(cx, ccy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); ctx.stroke();
     text('-' + Math.round(p * 100) + '%', cx, ccy, 78, 800, '#fff', 'center', -2);
-    text('menos energia', cx, y + 480, 28, 500, 'rgba(255,255,255,.6)', 'center', 2);
+    text('menos potência requerida', cx, y + 480, 26, 500, 'rgba(255,255,255,.6)', 'center', 1);
   });
 
   // barras: custo por tonelada
