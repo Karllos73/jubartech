@@ -1,5 +1,5 @@
 // Renderiza video/motions.html quadro a quadro (Chromium) e monta o MP4 com ffmpeg.
-// Uso: node video/render.mjs [saida.mp4] [--preview]
+// Uso: node video/render.mjs [saida.mp4] [--preview]   (o áudio entra depois, com: python3 video/audio.py video/.cache/silent.mp4)
 import { createRequire } from 'node:module';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -11,7 +11,7 @@ const require = createRequire(process.env.NODE_TOOLS || '/opt/node-tools/node_mo
 const { chromium } = require('playwright');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const out = path.resolve(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : path.join(root, 'video/jubartech-motions.mp4'));
+const out = path.resolve(process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : path.join(root, 'video/.cache/silent.mp4'));
 const preview = process.argv.includes('--preview');
 
 const types = { '.html': 'text/html', '.png': 'image/png', '.jpg': 'image/jpeg', '.js': 'text/javascript' };
