@@ -77,6 +77,35 @@ h1, h2, h3, p { margin: 0; }
 .kicker { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(.8rem, 2.4vw, 1.35rem); letter-spacing: .42em; text-transform: uppercase; text-align: center; margin-right: -.42em; text-shadow: 0 2px 18px rgba(10, 18, 30, .35); }
 .mega { display: block; font-family: var(--display); font-weight: 500; font-size: clamp(2.6rem, 12.6vw, 12.5rem); line-height: .86; letter-spacing: -0.035em; text-align: center; text-transform: uppercase; white-space: nowrap; margin-top: .14em; text-shadow: 0 6px 40px rgba(10, 18, 30, .25); }
 .mega .ch { display: inline-block; }
+/* Efeitos de texto do topo (Digital Serenity): grade desenhada, pontos pulsando, partículas, brilho */
+.hgrid { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.hgrid line { stroke: rgba(255, 255, 255, .34); stroke-width: 1; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+.hgrid .v { stroke: rgba(255, 255, 255, .22); }
+.hdots { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+.hdot { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 0 rgba(232, 137, 46, .5); }
+.hparts { position: absolute; z-index: 1; inset: 0; pointer-events: none; overflow: hidden; }
+.hpart { position: absolute; border-radius: 50%; opacity: 0; }
+.hglow { position: absolute; z-index: 1; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%), rgba(232, 137, 46, .16), rgba(194, 90, 53, .06) 45%, transparent 70%); }
+.hero:hover .hglow { opacity: 1; }
+.ripple { position: absolute; z-index: 1; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; border: 1.5px solid rgba(232, 137, 46, .7); pointer-events: none; animation: ripple 1s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes ripple { to { transform: scale(26); opacity: 0; } }
+.hw, .mega .ch { transition: translate .45s cubic-bezier(.2, .7, .3, 1), text-shadow .45s, color .45s; }
+.hw { display: inline-block; cursor: default; }
+.hw:hover, .mega .ch:hover { translate: 0 -.08em; text-shadow: 0 0 22px rgba(232, 137, 46, .75), 0 0 2px rgba(255, 255, 255, .6); }
+.mega .ch:hover { translate: 0 -.04em; }
+.lead-hero .hw:hover, .lead-desk .hw:hover { color: #fff; }
+.uline { display: block; width: min(46%, 520px); height: 3px; margin: clamp(10px, 1.4vw, 20px) auto 0; border-radius: 3px; transform-origin: center;
+  background: linear-gradient(90deg, transparent, var(--sun) 22%, var(--clay) 78%, transparent); box-shadow: 0 0 18px rgba(232, 137, 46, .55); }
+.fxon .hgrid line { stroke-dashoffset: 1; animation: gdraw 2.2s cubic-bezier(.6, .1, .2, 1) forwards; }
+.fxon .hgrid line:nth-child(2) { animation-delay: .25s; } .fxon .hgrid line:nth-child(3) { animation-delay: .5s; } .fxon .hgrid line:nth-child(4) { animation-delay: .75s; }
+@keyframes gdraw { to { stroke-dashoffset: 0; } }
+.fxon .hdot { animation: hpulse 2.6s ease-in-out infinite; }
+.fxon .hdot:nth-child(2) { animation-delay: .65s; } .fxon .hdot:nth-child(3) { animation-delay: 1.3s; } .fxon .hdot:nth-child(4) { animation-delay: 1.95s; }
+@keyframes hpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 137, 46, .55); transform: scale(1); } 50% { box-shadow: 0 0 0 9px rgba(232, 137, 46, 0); transform: scale(1.35); } }
+.fxon .hpart { animation: hfloat var(--d, 9s) ease-in-out var(--dl, 0s) infinite; }
+@keyframes hfloat { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: var(--o, .7); } 85% { opacity: var(--o, .7); } 100% { opacity: 0; transform: translate(var(--dx, 10px), -120px); } }
+@media (prefers-reduced-motion: reduce) { .hw, .mega .ch { transition: none; } .ripple { display: none; } }
 .lead-hero { margin: 18px auto 0; max-width: 36ch; text-align: center; color: rgba(255, 255, 255, .86); font-size: .98rem; }
 .hero-foot { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 26px 0 calc(58px + env(safe-area-inset-bottom, 0px)); }
 .brand { position: fixed; z-index: 50; top: max(18px, env(safe-area-inset-top, 0px)); left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
@@ -233,18 +262,25 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
 </style>
 
+</head>
+<body>
 <div class="brand">
         <a class="who" href="https://www.instagram.com/jubartech/" target="_blank" rel="noopener"><span class="av"><img src="img/logo.png" alt=""></span><span><b>Jubartech</b><small>Reciclagem cerâmica</small></span></a>
     </div>
-</head>
-<body>
 <main id="topo">
   <div class="hero">
     <div class="art" aria-hidden="true"><canvas id="po"></canvas></div>
+    <svg class="hgrid" aria-hidden="true">
+      <line x1="0" y1="20%" x2="100%" y2="20%" pathLength="1"/><line x1="100%" y1="80%" x2="0" y2="80%" pathLength="1"/>
+      <line class="v" x1="20%" y1="0" x2="20%" y2="100%" pathLength="1"/><line class="v" x1="80%" y1="100%" x2="80%" y2="0" pathLength="1"/>
+    </svg>
+    <div class="hdots" aria-hidden="true"><i class="hdot" style="left:20%;top:20%"></i><i class="hdot" style="left:80%;top:20%"></i><i class="hdot" style="left:80%;top:80%"></i><i class="hdot" style="left:20%;top:80%"></i></div>
+    <div class="hparts" aria-hidden="true"></div>
+    <div class="hglow" aria-hidden="true"></div>
     <div class="wrap side">
     </div>
     <div class="wrap headline">
-      <h1><span class="kicker">Resíduo cerâmico vira</span><span class="mega">Chamote</span></h1>
+      <h1><span class="kicker">Resíduo cerâmico vira</span><span class="mega">Chamote</span><span class="uline" aria-hidden="true"></span></h1>
       <p class="lead-hero">Tecnologia que tritura telhas e tijolos reprovados e devolve o material à produção.</p>
     </div>
     <div class="wrap hero-foot">
@@ -593,6 +629,33 @@ document.documentElement.lang = 'pt-BR';
 
 </script>
 <script>
+/* Topo: palavras separadas para o brilho ao passar o mouse e a entrada em cascata; partículas, brilho do cursor e ondas no clique */
+(function () {
+  document.querySelectorAll('.hero .kicker, .lead-hero, .lead-desk').forEach(el => {
+    el.innerHTML = el.textContent.trim().split(/\s+/).map(w => '<span class="hw">' + w + '</span>').join(' ');
+  });
+  const hero = document.querySelector('.hero');
+  const box = hero.querySelector('.hparts'), cols = ['#E8892E', '#C25A35', '#E9C7A4', '#ffffff'];
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('i'), z = 2 + (i * 7 % 4);
+    p.className = 'hpart';
+    p.style.cssText = 'left:' + (6 + (i * 37) % 88) + '%;top:' + (30 + (i * 53) % 62) + '%;width:' + z + 'px;height:' + z + 'px;background:' + cols[i % 4] +
+      ';--d:' + (7 + i % 5 * 1.6) + 's;--dl:' + (-(i * 1.3) % 9) + 's;--dx:' + ((i % 2 ? 1 : -1) * (8 + i * 3 % 22)) + 'px;--o:' + (.45 + i % 3 * .15);
+    box.appendChild(p);
+  }
+  if (navigator.webdriver || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  hero.classList.add('fxon');
+  const glow = hero.querySelector('.hglow');
+  hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); glow.style.setProperty('--gx', e.clientX - r.left + 'px'); glow.style.setProperty('--gy', e.clientY - r.top + 'px'); }, { passive: true });
+  hero.addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    const r = hero.getBoundingClientRect(), d = document.createElement('span');
+    d.className = 'ripple'; d.style.left = e.clientX - r.left + 'px'; d.style.top = e.clientY - r.top + 'px';
+    hero.appendChild(d); setTimeout(() => d.remove(), 1100);
+  });
+})();
+</script>
+<script>
 /* Vídeo da simulação: toca sozinho, sem som, só enquanto está na tela */
 (function () {
   const v = document.getElementById('simVideo'); if (!v) return;
@@ -627,10 +690,11 @@ document.documentElement.lang = 'pt-BR';
   mega.innerHTML = '<span class="sr">' + mega.textContent + '</span>' + mega.textContent.split('').map(c => '<span class="ch" aria-hidden="true">' + c + '</span>').join('');
   const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
   intro.from('.art', { opacity: 0, duration: 1.4 }, 0)
-    .from('.kicker', { opacity: 0, letterSpacing: '1em', duration: 1.4 }, .25)
-    .from('.hero .mega .ch', { yPercent: 110, opacity: 0, duration: 1.1, stagger: .06 }, .35)
+    .from('.kicker .hw', { opacity: 0, y: 14, scale: .92, filter: 'blur(10px)', duration: 1.1, stagger: .14, ease: 'power3.out' }, .25)
+    .from('.hero .mega .ch', { yPercent: 110, opacity: 0, filter: 'blur(12px)', duration: 1.1, stagger: .06 }, .35)
+    .from('.hero .uline', { scaleX: 0, opacity: 0, duration: 1.4, ease: 'expo.inOut' }, 1)
     .from('.brand', { y: -16, opacity: 0, duration: .9 }, .2)
-    .from('.lead-hero, .hero-foot > *', { y: 24, opacity: 0, duration: .9, stagger: .08 }, .8);
+    .from('.lead-hero .hw, .lead-desk .hw', { y: 10, opacity: 0, filter: 'blur(8px)', duration: .8, stagger: .045, ease: 'power3.out' }, .9);
 
   /* a arte acompanha o ponteiro, devagar (só no desktop) */
   const art = document.querySelector('.art');
