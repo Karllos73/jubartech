@@ -158,6 +158,40 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 @media (min-width: 900px) { .proto .specs { left: 28px; top: 28px; flex-direction: column; align-items: flex-start; } .proto figcaption { right: 28px; bottom: 28px; } }
 
 /* Vídeo da simulação */
+/* Scroll Cinema: o vídeo da simulação avança e volta com a rolagem */
+.cine { padding: 0 0 clamp(72px, 10vw, 128px); }
+.cine-frame { position: relative; width: min(1240px, 100% - 32px); margin: 0 auto; border-radius: 32px; overflow: hidden; background: var(--p-bot); aspect-ratio: 16 / 9; box-shadow: 0 40px 70px -46px var(--shadow); }
+.cine-frame video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cine-shade, .cine-load, .cine-meter .cine-bar { display: none; }
+.cine-ui { padding-top: 22px; }
+.cine-label { margin: 0 0 12px; }
+.cine-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.cine-steps b { font-family: var(--display); font-weight: 400; font-size: .74rem; letter-spacing: .3em; color: var(--num); }
+.cine-steps h3 { margin: 6px 0 4px; font-family: var(--display); font-weight: 500; font-size: 1.05rem; line-height: 1.2; }
+.cine-steps p { margin: 0; color: var(--slate); font-size: .92rem; }
+.cine-meter { display: none; }
+.cine-on .cine { height: 520vh; padding: 0; position: relative; }
+.cine-on .cine-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.cine-on .cine-frame { position: absolute; inset: 0; width: auto; margin: 0; aspect-ratio: auto; border-radius: 0; clip-path: inset(var(--ci, 0%) round var(--cr, 0px)); }
+.cine-on .cine-shade { display: block; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 21, 30, .55) 0%, rgba(15, 21, 30, 0) 30%, rgba(15, 21, 30, 0) 52%, rgba(15, 21, 30, .82) 100%), linear-gradient(90deg, rgba(15, 21, 30, .45), rgba(15, 21, 30, 0) 50%); }
+.cine-on .cine-ui { position: absolute; inset: 0; margin: 0 auto; padding: max(96px, 12vh) 0 calc(36px + env(safe-area-inset-bottom, 0px)); color: #fff; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.cine-on .cine-label { color: #fff; opacity: .85; }
+.cine-on .cine-steps { display: block; position: relative; flex: 1; }
+.cine-on .cine-steps li { position: absolute; left: 0; bottom: 0; max-width: 30ch; opacity: 0; will-change: opacity, transform, filter; }
+.cine-on .cine-steps b { color: var(--sun); }
+.cine-on .cine-steps h3 { font-size: clamp(1.5rem, 4.2vw, 3rem); line-height: 1.05; letter-spacing: -.02em; text-shadow: 0 4px 30px rgba(10, 18, 30, .45); }
+.cine-on .cine-steps p { color: rgba(255, 255, 255, .85); font-size: clamp(.92rem, 1.4vw, 1.05rem); }
+.cine-on .cine-meter { display: grid; gap: 2px; align-self: flex-end; text-align: right; margin-top: 22px; }
+.cine-meter .k { font-family: var(--display); font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; opacity: .8; }
+.cine-meter b { font-family: var(--display); font-weight: 500; font-size: clamp(1.8rem, 4.6vw, 3.4rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.cine-meter small { font-size: .78rem; opacity: .72; }
+.cine-on .cine-meter .cine-bar { display: block; position: relative; height: 3px; margin-top: 10px; width: min(320px, 70vw); justify-self: end; border-radius: 3px; background: rgba(255, 255, 255, .22); overflow: hidden; }
+.cine-bar i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--p, 0)); background: linear-gradient(90deg, var(--sun), var(--clay)); box-shadow: 0 0 12px rgba(232, 137, 46, .6); }
+.cine-on .cine-load { display: flex; position: absolute; inset: 0; z-index: 3; align-items: center; justify-content: center; gap: 12px; color: #fff; font-size: .9rem; background: rgba(15, 21, 30, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: opacity .6s, visibility .6s; }
+.cine-load .ring { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .25); border-top-color: var(--sun); animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cine-load.done { opacity: 0; visibility: hidden; }
+@media (max-width: 639px) { .cine-on .cine { height: 440vh; } .cine-on .cine-meter { align-self: stretch; text-align: left; } .cine-on .cine-meter .cine-bar { justify-self: stretch; width: auto; } }
 .sim { position: relative; margin: 20px 0 0; border-radius: 32px; overflow: hidden; background: var(--p-mid); box-shadow: 0 40px 70px -46px var(--shadow); aspect-ratio: 16 / 9; }
 .sim video { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sim figcaption { position: absolute; left: 12px; bottom: 12px; min-height: 30px; padding: 3px 12px; font-size: .74rem; }
@@ -338,10 +372,31 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
           <img src="img/moedor.webp" width="1370" height="1006" alt="Modelo 3D do Eco-Moedor Cerâmico: funil de entrada, câmara de trituração, motor azul e esteira de saída" loading="lazy">
           <figcaption><span class="pill dark">TRL 3→4</span><span class="pill dark">Patente em depósito</span></figcaption>
         </figure>
-        <figure class="sim rv">
+      </div>
+    </section>
+
+    <section class="cine" id="simulacao" aria-label="Simulação 3D do Eco-Moedor Cerâmico">
+      <div class="cine-stage">
+        <div class="cine-frame">
           <video id="simVideo" width="1280" height="720" poster="img/simulacao.jpg" muted loop playsinline preload="metadata" aria-label="Simulação 3D: telhas entram no funil, são trituradas pelos rotores e saem como pó de chamote pela esteira"><source src="img/simulacao.mp4" type="video/mp4"><source src="img/simulacao.webm" type="video/webm"></video>
-          <figcaption class="pill">Simulação 3D do funcionamento</figcaption>
-        </figure>
+          <div class="cine-shade" aria-hidden="true"></div>
+        </div>
+        <div class="wrap cine-ui">
+          <p class="label cine-label">Simulação 3D</p>
+          <ol class="cine-steps">
+            <li><b>01</b><h3>O Eco&#8209;Moedor Cerâmico</h3><p>Funil, câmara de trituração, motor e esteira em um só conjunto.</p></li>
+            <li><b>02</b><h3>Peças reprovadas entram</h3><p>Telhas e tijolos com defeito caem entre os rotores.</p></li>
+            <li><b>03</b><h3>Os rotores trituram</h3><p>O material desce em grão fino, já com cara de chamote.</p></li>
+            <li><b>04</b><h3>Chamote de volta à produção</h3><p>A esteira leva o pó para a próxima massa cerâmica.</p></li>
+          </ol>
+          <div class="cine-meter" aria-hidden="true">
+            <span class="k">Resíduo reaproveitado</span>
+            <b><span class="kg">1.000</span> kg</b>
+            <small>Ilustração com 1 tonelada de peças reprovadas</small>
+            <span class="cine-bar"><i></i></span>
+          </div>
+        </div>
+        <div class="cine-load" aria-hidden="true"><span class="ring"></span><span>Carregando a simulação <b class="pct">0%</b></span></div>
       </div>
     </section>
 
@@ -659,6 +714,7 @@ document.documentElement.lang = 'pt-BR';
 /* Vídeo da simulação: toca sozinho, sem som, só enquanto está na tela */
 (function () {
   const v = document.getElementById('simVideo'); if (!v) return;
+  if (window.gsap && window.ScrollTrigger && !navigator.webdriver && !matchMedia('(prefers-reduced-motion: reduce)').matches) return; /* com movimento, a rolagem controla o vídeo */
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; return; }
   if (!('IntersectionObserver' in window)) { v.play().catch(() => { v.controls = true; }); return; }
   new IntersectionObserver(e => { if (e[0].isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); }, { threshold: .25 }).observe(v);
@@ -670,6 +726,7 @@ document.documentElement.lang = 'pt-BR';
   if (!window.gsap || !window.ScrollTrigger) return;
   if (navigator.webdriver || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   gsap.registerPlugin(ScrollTrigger);
+  document.documentElement.classList.add('cine-on');
   const desk = matchMedia('(min-width: 900px) and (pointer: fine)').matches;
   const $$ = q => gsap.utils.toArray(q);
 
@@ -684,6 +741,60 @@ document.documentElement.lang = 'pt-BR';
       if (t === null) return; e.preventDefault(); lenis.scrollTo(t);
     });
   }
+
+  /* Scroll Cinema: seção alta com o vídeo fixo; o progresso 0→1 move o vídeo, as legendas, o contador e a barra.
+     O vídeo (60 qps, todo quadro é chave) só é baixado quando a seção se aproxima, com tela de carregamento. */
+  (function () {
+    const sec = document.querySelector('.cine'); if (!sec) return;
+    const v = sec.querySelector('video'), load = sec.querySelector('.cine-load'), pct = load.querySelector('.pct');
+    const steps = gsap.utils.toArray('.cine-steps li'), kg = sec.querySelector('.kg'), bar = sec.querySelector('.cine-bar'), frame = sec.querySelector('.cine-frame');
+    const fmt = n => n.toLocaleString('pt-BR');
+    v.removeAttribute('loop'); v.pause(); v.preload = 'auto';
+    let ready = false, target = 0, cur = 0, p = 0;
+    const src = innerWidth < 700 ? 'img/cinema-m.mp4' : 'img/cinema.mp4';
+    const show = url => {
+      v.innerHTML = ''; v.src = url; v.load();
+      v.addEventListener('loadeddata', () => { ready = true; load.classList.add('done'); v.currentTime = cur = target; }, { once: true });
+      const pr = v.play(); if (pr) pr.then(() => v.pause()).catch(() => {});
+    };
+    const fetchVid = () => {
+      if (!window.fetch || !window.ReadableStream) return show(src);
+      fetch(src).then(r => {
+        if (!r.ok || !r.body) throw 0;
+        const total = +r.headers.get('content-length') || 0, rd = r.body.getReader(), parts = []; let got = 0;
+        const pump = () => rd.read().then(({ done, value }) => {
+          if (done) return show(URL.createObjectURL(new Blob(parts, { type: 'video/mp4' })));
+          parts.push(value); got += value.length; if (total) pct.textContent = Math.min(99, Math.round(got / total * 100)) + '%';
+          return pump();
+        });
+        return pump();
+      }).catch(() => show(src));
+    };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(e => { if (e[0].isIntersecting) { io.disconnect(); fetchVid(); } }, { rootMargin: '150% 0px' });
+      io.observe(sec);
+    } else fetchVid();
+    const N = steps.length, seg = 1 / N;
+    const render = () => {
+      steps.forEach((el, i) => {
+        const a = i * seg, b = a + seg, f = .22 * seg;
+        let o = i === 0 ? (p < b - f ? 1 : (b - p) / f) : i === N - 1 ? (p < a ? 0 : Math.min(1, (p - a) / f)) : (p < a || p > b ? 0 : Math.min(1, (p - a) / f, (b - p) / f));
+        o = Math.max(0, Math.min(1, o));
+        el.style.opacity = o; el.style.transform = 'translateY(' + ((1 - o) * 24).toFixed(1) + 'px)'; el.style.filter = o > .98 ? 'none' : 'blur(' + ((1 - o) * 10).toFixed(1) + 'px)';
+      });
+      kg.textContent = fmt(Math.round(p * 1000));
+      bar.style.setProperty('--p', p.toFixed(4));
+      const e = Math.min(1, p / .08);
+      frame.style.setProperty('--ci', ((1 - e) * 5).toFixed(2) + '%'); frame.style.setProperty('--cr', ((1 - e) * 32).toFixed(1) + 'px');
+    };
+    ScrollTrigger.create({ trigger: sec, start: 'top top', end: 'bottom bottom', onUpdate: s => { p = s.progress; if (v.duration) target = p * (v.duration - .05); render(); } });
+    render();
+    gsap.ticker.add(() => {
+      if (!ready || !v.duration) return;
+      cur += (target - cur) * .2;
+      if (Math.abs(v.currentTime - cur) > 1 / 120 && !v.seeking) v.currentTime = cur;
+    });
+  })();
 
   /* Palavra gigante: letras sobem uma a uma */
   const mega = document.querySelector('.hero .mega');
