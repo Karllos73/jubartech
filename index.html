@@ -158,6 +158,25 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 @media (min-width: 900px) { .proto .specs { left: 28px; top: 28px; flex-direction: column; align-items: flex-start; } .proto figcaption { right: 28px; bottom: 28px; } }
 
 /* Vídeo da simulação */
+/* Barra de progresso da página */
+.prog { position: fixed; z-index: 60; top: 0; left: 0; right: 0; height: 3px; pointer-events: none; transform-origin: left; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--sun), var(--clay)); box-shadow: 0 0 10px rgba(232, 137, 46, .55); }
+/* Faixas de texto correndo */
+.mq { overflow: hidden; padding: clamp(28px, 4vw, 48px) 0; user-select: none; }
+.mq-track { display: flex; width: max-content; }
+.mq-set { display: flex; align-items: center; flex: none; }
+.mq-i { font-family: var(--display); font-weight: 500; font-size: clamp(1.6rem, 4.6vw, 3.6rem); letter-spacing: -.02em; text-transform: uppercase; white-space: nowrap; line-height: 1.1; }
+.mq-i.o { color: var(--num); font-weight: 400; }
+.mq-a { padding-bottom: 0; }
+.mq-dot { flex: none; width: clamp(10px, 1.2vw, 16px); aspect-ratio: 1; margin: 0 clamp(18px, 2.6vw, 36px); border-radius: 50%; background: radial-gradient(circle at 35% 35%, var(--sun), var(--clay)); }
+.mq-b { padding-top: 0; }
+/* Fotos com folga para o deslocamento interno */
+.photo { overflow: hidden; }
+.photo img { will-change: transform; }
+/* Ícones dos benefícios: sobem e giram de leve ao passar o mouse */
+.card .ic svg { transition: transform .5s cubic-bezier(.2, .7, .3, 1); }
+.card:hover .ic svg { transform: translateY(-3px) rotate(-8deg) scale(1.08); }
+.faq .a { overflow: hidden; }
 /* Scroll Cinema: o vídeo da simulação avança e volta com a rolagem */
 .cine { padding: 0 0 clamp(72px, 10vw, 128px); }
 .cine-frame { position: relative; width: min(1240px, 100% - 32px); margin: 0 auto; border-radius: 32px; overflow: hidden; background: var(--p-bot); aspect-ratio: 16 / 9; box-shadow: 0 40px 70px -46px var(--shadow); }
@@ -296,6 +315,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
 </style>
 
+<div class="prog" aria-hidden="true"></div>
 </head>
 <body>
 <div class="brand">
@@ -323,6 +343,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   </div>
 
   <div class="sheet">
+    <div class="mq mq-a" aria-hidden="true"><div class="mq-track"><div class="mq-set"><span class="mq-i">Telha reprovada</span><i class="mq-dot"></i><span class="mq-i o">Tijolo quebrado</span><i class="mq-dot"></i><span class="mq-i">Chamote</span><i class="mq-dot"></i><span class="mq-i o">Economia circular</span><i class="mq-dot"></i><span class="mq-i">Patente em depósito</span><i class="mq-dot"></i><span class="mq-i o">Cerâmica vermelha</span><i class="mq-dot"></i></div><div class="mq-set"><span class="mq-i">Telha reprovada</span><i class="mq-dot"></i><span class="mq-i o">Tijolo quebrado</span><i class="mq-dot"></i><span class="mq-i">Chamote</span><i class="mq-dot"></i><span class="mq-i o">Economia circular</span><i class="mq-dot"></i><span class="mq-i">Patente em depósito</span><i class="mq-dot"></i><span class="mq-i o">Cerâmica vermelha</span><i class="mq-dot"></i></div></div></div>
     <section id="mercado">
       <div class="wrap">
         <p class="label rv">O mercado</p>
@@ -378,7 +399,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <section class="cine" id="simulacao" aria-label="Simulação 3D do Eco-Moedor Cerâmico">
       <div class="cine-stage">
         <div class="cine-frame">
-          <video id="simVideo" width="1280" height="720" poster="img/simulacao.jpg" muted loop playsinline preload="metadata" aria-label="Simulação 3D: telhas entram no funil, são trituradas pelos rotores e saem como pó de chamote pela esteira"><source src="img/simulacao.mp4" type="video/mp4"><source src="img/simulacao.webm" type="video/webm"></video>
+          <video id="simVideo" width="1280" height="720" poster="img/simulacao-hd.jpg" muted loop playsinline preload="metadata" aria-label="Simulação 3D: telhas entram no funil, são trituradas pelos rotores e saem como pó de chamote pela esteira"><source src="img/simulacao-hd.mp4" type="video/mp4"><source src="img/simulacao-hd.webm" type="video/webm"></video>
           <div class="cine-shade" aria-hidden="true"></div>
         </div>
         <div class="wrap cine-ui">
@@ -442,7 +463,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <p class="label rv">Benefícios</p>
         <h2 class="h2 rv">O que era perda volta para a massa</h2>
         <div class="benef-grid">
-          <div class="photo rv"><img src="img/mao.jpg" width="1456" height="1088" alt="Mão robótica segurando pó de chamote ao lado de fragmentos de telha" loading="lazy"><span class="pill tag">Chamote · granulometria controlada</span></div>
+          <div class="photo rv"><img src="img/mao-hd.webp" width="2048" height="1530" alt="Mão robótica segurando pó de chamote ao lado de fragmentos de telha" loading="lazy"><span class="pill tag">Chamote · granulometria controlada</span></div>
           <div>
             <div class="cards">
               <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a9.5 9.5 0 0 1 16.5-5"/><path d="M24 3.5V8h-4.5"/><path d="M25 19a9.5 9.5 0 0 1-16.5 5"/><path d="M8 28.5V24h4.5"/><path class="hot" d="M12 20c0-5 3.5-8 8-8 0 5-3 8-8 8z"/><path class="hot" d="M12 20l4-4"/></svg></span><h3>Economia circular</h3></div>
@@ -455,6 +476,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       </div>
     </section>
 
+    <div class="mq mq-b" aria-hidden="true"><div class="mq-track"><div class="mq-set"><span class="mq-i">Resíduo vira matéria-prima</span><i class="mq-dot"></i><span class="mq-i o">Menos argila virgem</span><i class="mq-dot"></i><span class="mq-i">Licenciamento de tecnologia</span><i class="mq-dot"></i><span class="mq-i o">Eco‑Moedor Cerâmico</span><i class="mq-dot"></i></div><div class="mq-set"><span class="mq-i">Resíduo vira matéria-prima</span><i class="mq-dot"></i><span class="mq-i o">Menos argila virgem</span><i class="mq-dot"></i><span class="mq-i">Licenciamento de tecnologia</span><i class="mq-dot"></i><span class="mq-i o">Eco‑Moedor Cerâmico</span><i class="mq-dot"></i></div></div></div>
     <section id="perguntas" style="padding-top: 0">
       <div class="wrap">
         <p class="label rv">Perguntas</p>
@@ -469,7 +491,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   </div>
 
   <section class="final" id="contato">
-    <div class="art2" aria-hidden="true"><img src="img/maos-fundo.jpg" width="1600" height="899" alt="" loading="lazy"><img class="hand hand-l" src="img/maos-limpo.jpg" width="1600" height="899" alt="" loading="lazy"><img class="hand hand-r" src="img/maos-limpo.jpg" width="1600" height="899" alt="" loading="lazy"><canvas></canvas></div>
+    <div class="art2" aria-hidden="true"><img src="img/maos-fundo.jpg" width="1600" height="899" alt="" loading="lazy"><img class="hand hand-l" src="img/maos-limpo-hd.webp" width="2800" height="1573" alt="" loading="lazy"><img class="hand hand-r" src="img/maos-limpo-hd.webp" width="2800" height="1573" alt="" loading="lazy"><canvas></canvas></div>
     <div class="wrap">
       <p class="label rv">Próximo passo</p>
       <h2 class="mega rv-m"><span>Vamos</span><span>conversar</span></h2>
@@ -751,7 +773,7 @@ document.documentElement.lang = 'pt-BR';
     const fmt = n => n.toLocaleString('pt-BR');
     v.removeAttribute('loop'); v.pause(); v.preload = 'auto';
     let ready = false, target = 0, cur = 0, p = 0;
-    const src = innerWidth < 700 ? 'img/cinema-m.mp4' : 'img/cinema.mp4';
+    const src = innerWidth < 700 ? 'img/cinema-hd-m.mp4' : 'img/cinema-hd.mp4';
     const show = url => {
       v.innerHTML = ''; v.src = url; v.load();
       v.addEventListener('loadeddata', () => { ready = true; load.classList.add('done'); v.currentTime = cur = target; }, { once: true });
@@ -927,6 +949,50 @@ document.documentElement.lang = 'pt-BR';
   gsap.from('.proto img', { xPercent: desk ? -14 : 0, opacity: 0, filter: 'blur(' + BLUR + 'px)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.proto', start: 'top 80%', toggleActions: 'play none none reverse' } });
   gsap.from('.proto .pill', { y: 16, opacity: 0, duration: .7, ease: 'power3.out', stagger: .08, scrollTrigger: { trigger: '.proto', start: 'top 70%', toggleActions: 'play none none reverse' } });
 
+
+  /* Barra de progresso da página */
+  gsap.to('.prog', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: .3 } });
+
+  /* Faixas de texto: correm sem parar, aceleram com a velocidade da rolagem e invertem o sentido conforme a direção */
+  $$('.mq').forEach((m, k) => {
+    const tr = m.querySelector('.mq-track'), dir0 = k % 2 ? 1 : -1;
+    const tw = gsap.fromTo(tr, { xPercent: dir0 < 0 ? 0 : -50 }, { xPercent: dir0 < 0 ? -50 : 0, duration: desk ? 38 : 26, ease: 'none', repeat: -1 });
+    let boost = 1;
+    ScrollTrigger.create({ trigger: m, start: 'top bottom', end: 'bottom top',
+      onUpdate: s => { const v = s.getVelocity(); tw.timeScale((s.direction > 0 ? 1 : -1) * Math.min(6, 1 + Math.abs(v) / 260)); boost = 1; },
+      onToggle: s => s.isActive ? tw.play() : tw.pause() });
+    gsap.ticker.add(() => { const t = tw.timeScale(); if (Math.abs(t) > 1.02) tw.timeScale(t + (Math.sign(t) - t) * .06); });
+    gsap.fromTo(m.querySelectorAll('.mq-i'), { opacity: .15 }, { opacity: 1, stagger: .02, ease: 'none', scrollTrigger: { trigger: m, start: 'top 95%', end: 'top 55%', scrub: .5 } });
+  });
+
+  /* Fotos: deslocamento interno (paralaxe) e leve inclinação com a velocidade */
+  $$('.photo img').forEach(img => gsap.fromTo(img, { yPercent: -7, scale: 1.16 }, { yPercent: 7, scale: 1.16, ease: 'none',
+    scrollTrigger: { trigger: img.parentNode, start: 'top bottom', end: 'bottom top', scrub: true } }));
+  const skewEls = $$('.proto img, .photo');
+  if (skewEls.length) {
+    const sk = gsap.quickTo(skewEls, 'skewY', { duration: .6, ease: 'power3.out' });
+    ScrollTrigger.create({ onUpdate: s => sk(gsap.utils.clamp(-3, 3, s.getVelocity() / -400)) });
+    ScrollTrigger.addEventListener('scrollEnd', () => sk(0));
+  }
+
+  /* Ícones dos benefícios: traços se desenham quando o cartão aparece */
+  $$('.card .ic').forEach(ic => {
+    const ps = ic.querySelectorAll('path, rect, circle, line, polyline');
+    ps.forEach(p => p.setAttribute('pathLength', '1'));
+    gsap.fromTo(ps, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', stagger: .12,
+      scrollTrigger: { trigger: ic, start: 'top 88%', toggleActions: 'play none none reverse' } });
+    gsap.from(ic, { scale: .6, rotate: -20, opacity: 0, duration: .9, ease: 'back.out(2)', scrollTrigger: { trigger: ic, start: 'top 88%', toggleActions: 'play none none reverse' } });
+  });
+
+  /* Perguntas: a resposta abre e fecha deslizando */
+  $$('.faq details').forEach(d => {
+    const sm = d.querySelector('summary'), a = d.querySelector('.a');
+    sm.addEventListener('click', e => {
+      e.preventDefault();
+      if (d.open) gsap.to(a, { height: 0, paddingBottom: 0, opacity: 0, duration: .4, ease: 'power2.inOut', onComplete: () => { d.open = false; gsap.set(a, { clearProps: 'height,paddingBottom,opacity' }); } });
+      else { d.open = true; gsap.from(a, { height: 0, paddingBottom: 0, opacity: 0, duration: .5, ease: 'power3.out', clearProps: 'height,paddingBottom,opacity' }); }
+    });
+  });
 
   addEventListener('load', () => ScrollTrigger.refresh());
 })();
