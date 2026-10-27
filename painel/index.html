@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Painel Eco-Moedor</title>
+<meta name="description" content="Painel de operação do protótipo do Eco-Moedor Cerâmico da Jubartech, conectado à ESP32 por Bluetooth.">
+<meta name="theme-color" content="#0E2233">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --oceano:#0E2233; --oceano-2:#13304A; --oceano-3:#0A1926;
+  --aco:#8C99AB; --aco-claro:#C9D2DE; --texto:#EDF1F6; --texto-2:#A2ADBD;
+  --laranja:#E8892E; --terracota:#C25A35; --verde-logo:#8BA66A; --azul:#2445D8; --azul-claro:#7D96FF;
+  --ok:#2FD07A; --aviso:#FFC23D; --perigo:#FF3B3B;
+  --raio:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--oceano);color:var(--texto);font-family:Manrope,system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;cursor:pointer}
+
+.app{height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding:10px 14px 14px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+
+/* topo */
+.topo{display:flex;align-items:center;gap:14px;min-width:0}
+.marca{display:flex;align-items:center;gap:10px;min-width:0}
+.marca img{width:40px;height:40px;flex:none}
+.marca h1{margin:0;font:600 18px/1.1 Unbounded,sans-serif;letter-spacing:.01em;white-space:nowrap}
+.marca small{display:block;font:500 12px/1.2 Manrope,sans-serif;color:var(--texto-2);letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+.espaco{flex:1}
+.chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:13px;font-weight:600;white-space:nowrap}
+.ponto{width:10px;height:10px;border-radius:50%;background:#5a6b80;flex:none}
+.chip[data-s="on"] .ponto{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.chip[data-s="busy"] .ponto{background:var(--aviso);animation:pisca .8s infinite}
+.chip[data-s="off"] .ponto{background:#5a6b80}
+.btn{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);border-radius:12px;padding:9px 14px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn.prim{background:var(--azul);border-color:#4a66ff}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn svg{width:18px;height:18px}
+.vol{display:flex;align-items:center;gap:8px}
+.vol input{width:110px;accent-color:var(--laranja)}
+
+/* palco */
+.palco{position:relative;border-radius:var(--raio);overflow:hidden;min-height:0;
+  background:radial-gradient(120% 90% at 50% 20%,#1b3d5c 0%,#122b42 45%,#0b1b2a 100%);
+  border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 0 0 2px transparent;transition:box-shadow .2s}
+.palco svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.estado{position:absolute;left:16px;top:14px;display:flex;align-items:center;gap:10px;padding:9px 16px 9px 12px;border-radius:999px;background:rgba(5,14,22,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);font:600 15px/1 Unbounded,sans-serif;letter-spacing:.04em;z-index:2}
+.estado .ponto{width:12px;height:12px}
+body[data-estado="OPERANDO"] .estado .ponto{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+body[data-estado="PARTINDO"] .estado .ponto,body[data-estado="PARANDO"] .estado .ponto{background:var(--aviso);animation:pisca .5s infinite}
+body[data-estado="EMERGENCIA"] .estado .ponto{background:var(--perigo);animation:pisca .35s infinite}
+.legenda-palco{position:absolute;right:16px;top:16px;font-size:12px;color:var(--texto-2);letter-spacing:.06em;text-transform:uppercase;z-index:2;text-align:right}
+.faixa-emerg{position:absolute;left:0;right:0;bottom:0;padding:12px;text-align:center;font:600 clamp(16px,2.4vw,26px)/1 Unbounded,sans-serif;letter-spacing:.08em;color:#fff;background:repeating-linear-gradient(-45deg,#c41515 0 28px,#a00 28px 56px);transform:translateY(110%);transition:transform .25s;z-index:3}
+body[data-estado="EMERGENCIA"] .faixa-emerg{transform:none}
+body[data-estado="EMERGENCIA"] .palco{animation:bordaEmerg .7s infinite}
+@keyframes bordaEmerg{50%{box-shadow:inset 0 0 0 4px var(--perigo),inset 0 0 80px rgba(255,40,40,.35)}}
+@keyframes pisca{50%{opacity:.25}}
+
+/* painel inferior */
+.painel{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2fr);gap:12px}
+.ihm,.botoeira{border-radius:var(--raio);border:1px solid rgba(255,255,255,.08)}
+.ihm{background:linear-gradient(180deg,#0a1520,#07111a);padding:14px 16px;font-family:"JetBrains Mono",ui-monospace,monospace;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;align-content:start;box-shadow:inset 0 0 0 1px rgba(125,150,255,.08)}
+.ihm .rot{font-size:11px;color:#6f86a5;letter-spacing:.08em;text-transform:uppercase}
+.ihm .val{font-size:20px;font-weight:700;color:#bfe8ff;margin-top:2px;font-variant-numeric:tabular-nums}
+.ihm .barra{grid-column:1/-1;height:8px;border-radius:6px;background:#132436;overflow:hidden}
+.ihm .barra i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--azul-claro),var(--ok));border-radius:6px}
+.ihm .log{grid-column:1/-1;font-size:12px;color:#8fa6c2;line-height:1.55;min-height:3.1em;border-top:1px dashed #1f3550;padding-top:6px}
+.ihm .log b{color:#d6e6f5;font-weight:500}
+.ihm .acoes{grid-column:1/-1;display:flex;gap:8px}
+.ihm .acoes .btn{font-family:Manrope,sans-serif;font-size:13px;padding:7px 12px}
+
+.botoeira{position:relative;background:
+  linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 40%),
+  linear-gradient(180deg,#5d6a7a,#3f4a58);
+  display:flex;justify-content:space-evenly;align-items:flex-end;padding:14px 10px 12px;gap:8px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -3px 0 rgba(0,0,0,.25)}
+.parafuso{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e3e8ee,#7d8794);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.parafuso::after{content:"";position:absolute;left:2px;right:2px;top:5px;height:2px;background:#59626e;transform:rotate(35deg)}
+.p1{left:10px;top:10px}.p2{right:10px;top:10px}.p3{left:10px;bottom:10px}.p4{right:10px;bottom:10px}
+
+.posto{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.sinal{width:30px;height:30px;border-radius:50%;border:3px solid #2a313b;background:radial-gradient(circle at 40% 35%,#666,#222);box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.sinal.verde.on{background:radial-gradient(circle at 40% 35%,#d9ffe9,#2fd07a 45%,#0b7a3e);box-shadow:0 0 18px #2fd07a,0 0 40px rgba(47,208,122,.5)}
+.sinal.vermelho.on{background:radial-gradient(circle at 40% 35%,#ffe1e1,#ff4a4a 45%,#8a0d0d);box-shadow:0 0 18px #ff4a4a,0 0 40px rgba(255,74,74,.5)}
+.sinal.ambar.on{background:radial-gradient(circle at 40% 35%,#fff4d6,#ffc23d 45%,#9a6a00);box-shadow:0 0 18px #ffc23d,0 0 40px rgba(255,194,61,.5);animation:pisca .5s infinite}
+
+.botao{position:relative;width:clamp(86px,11vw,118px);aspect-ratio:1;border:none;border-radius:50%;padding:0;background:radial-gradient(circle at 50% 40%,#c8ced6,#7b8592 60%,#4a535e);box-shadow:0 6px 0 #2b323b,0 10px 18px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.5)}
+.botao .cap{position:absolute;inset:12%;border-radius:50%;display:grid;place-items:center;font:700 clamp(26px,3.4vw,36px)/1 Unbounded,sans-serif;color:rgba(255,255,255,.9);text-shadow:0 1px 0 rgba(0,0,0,.35);transition:transform .08s, box-shadow .08s}
+.botao.partida .cap{background:radial-gradient(circle at 40% 30%,#7af0ad,#1aa85c 55%,#0c6b39);box-shadow:inset 0 -6px 10px rgba(0,0,0,.35),inset 0 4px 8px rgba(255,255,255,.35),0 4px 0 #075a2f}
+.botao.desligar .cap{background:radial-gradient(circle at 40% 30%,#ff9a9a,#d42a2a 55%,#7d0d0d);box-shadow:inset 0 -6px 10px rgba(0,0,0,.35),inset 0 4px 8px rgba(255,255,255,.35),0 4px 0 #5e0808}
+.botao.apertado .cap,.botao:active .cap{transform:translateY(4px) scale(.97);box-shadow:inset 0 -2px 6px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.2),0 0 0 #000}
+
+.emerg-base{position:relative;width:clamp(120px,15.5vw,164px);aspect-ratio:1;border:none;padding:0;border-radius:50%;background:radial-gradient(circle,#ffd21f 0 62%,#e0b000 63% 70%,#ffd21f 71%);box-shadow:0 6px 0 #9c7a00,0 12px 20px rgba(0,0,0,.45)}
+.emerg-base svg.anel{position:absolute;inset:0;width:100%;height:100%}
+.cogumelo{position:absolute;inset:21%;border-radius:50%;background:radial-gradient(circle at 38% 30%,#ff8e8e,#e01616 50%,#7a0606);box-shadow:0 10px 0 #5a0505,0 14px 16px rgba(0,0,0,.5),inset 0 -8px 14px rgba(0,0,0,.35),inset 0 6px 10px rgba(255,255,255,.35);transition:transform .15s, box-shadow .15s}
+.cogumelo::after{content:"";position:absolute;left:44%;top:22%;width:12%;height:56%;border-radius:4px;background:rgba(0,0,0,.18);transform:rotate(var(--rot,0deg));transition:transform .4s}
+.emerg-base.travado .cogumelo{transform:translateY(8px) scale(.96);box-shadow:0 2px 0 #5a0505,0 4px 8px rgba(0,0,0,.5),inset 0 -8px 14px rgba(0,0,0,.4),inset 0 6px 10px rgba(255,255,255,.25)}
+.placa{background:#111820;color:#e9eef4;border-radius:6px;padding:6px 12px;font:700 12px/1 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);white-space:nowrap}
+.placa.amarela{background:#ffd21f;color:#1a1400}
+.dica{font-size:11px;color:#e9eef4;opacity:.75;height:13px;letter-spacing:.04em}
+
+/* tela inicial */
+.inicio{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:radial-gradient(90% 70% at 50% 30%,#18405f,#0E2233 60%,#081520);text-align:center;padding:24px;transition:opacity .4s}
+.inicio.some{opacity:0;pointer-events:none}
+.inicio img{width:96px;height:96px}
+.inicio h2{font:600 clamp(22px,4vw,36px)/1.15 Unbounded,sans-serif;margin:18px 0 6px}
+.inicio p{color:var(--texto-2);margin:0 0 26px;font-size:16px}
+.inicio .btn{font-size:18px;padding:16px 28px;border-radius:16px}
+.inicio .obs{margin-top:22px;font-size:13px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+.aviso{position:fixed;left:50%;top:18px;transform:translate(-50%,-200%);visibility:hidden;z-index:30;background:#101c28;border:1px solid rgba(255,255,255,.15);padding:12px 18px;border-radius:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .25s;max-width:min(90vw,560px);text-align:center}
+.aviso.mostra{transform:translate(-50%,0);visibility:visible}
+
+/* tablet em pé / telas estreitas */
+@media (max-aspect-ratio:1/1){
+  .painel{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .botoeira{order:-1;padding:18px 10px 14px}
+  .botao{width:clamp(90px,19vw,140px)}
+  .emerg-base{width:clamp(130px,25vw,190px)}
+}
+@media (max-width:900px){
+  .vol input{width:80px}
+  .marca small,.legenda-palco{display:none}
+  .marca h1{font-size:15px}
+  .topo{gap:8px}
+  .chip{font-size:12px;padding:7px 10px}
+}
+@media (max-width:600px){
+  .vol input,#txtBle{display:none}
+}
+@media (max-height:600px) and (min-aspect-ratio:1/1){
+  .ihm .log{display:none}
+  .botao{width:78px}.emerg-base{width:104px}
+}
+</style>
+</head>
+<body data-estado="PARADO">
+<div class="app">
+  <header class="topo">
+    <div class="marca">
+      <img src="logo.png" alt="Jubartech">
+      <div><h1>Eco-Moedor Cerâmico</h1><small>Painel de operação · protótipo</small></div>
+    </div>
+    <div class="espaco"></div>
+    <div class="chip" id="chipBle" data-s="off"><span class="ponto"></span><span id="txtBle">ESP32 desconectada</span></div>
+    <button class="btn prim" id="btnBle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></svg><span id="txtBtnBle">Conectar</span></button>
+    <div class="vol">
+      <button class="btn" id="btnMudo" aria-label="Som"><svg id="icoSom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg></button>
+      <input type="range" id="volume" min="0" max="100" value="85" aria-label="Volume">
+    </div>
+    <button class="btn" id="btnTela" aria-label="Tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+  </header>
+
+  <main class="palco" id="palco">
+    <div class="estado"><span class="ponto"></span><span id="txtEstado">PARADO</span></div>
+    <div class="legenda-palco">Simulação do funcionamento<br>do protótipo estático</div>
+
+    <svg id="cena" viewBox="0 -40 1200 640" preserveAspectRatio="xMidYMid meet" aria-label="Protótipo animado do Eco-Moedor Cerâmico">
+      <defs>
+        <linearGradient id="gAco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9b4c2"/><stop offset=".5" stop-color="#8592a3"/><stop offset="1" stop-color="#5f6b7b"/></linearGradient>
+        <linearGradient id="gAcoV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e7a8a"/><stop offset=".5" stop-color="#9aa6b5"/><stop offset="1" stop-color="#5d6878"/></linearGradient>
+        <linearGradient id="gFunil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ca7b6"/><stop offset="1" stop-color="#6b7787"/></linearGradient>
+        <linearGradient id="gMotor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b78ff"/><stop offset=".45" stop-color="#2445D8"/><stop offset="1" stop-color="#132a8f"/></linearGradient>
+        <linearGradient id="gCalha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9dbb84"/><stop offset="1" stop-color="#5f7d4b"/></linearGradient>
+        <radialGradient id="gJanela" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#1d2a38"/><stop offset="1" stop-color="#070d14"/></radialGradient>
+        <radialGradient id="gSombra" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+        <filter id="brilho" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <clipPath id="clipJanela"><rect x="414" y="249" width="252" height="157" rx="10"/></clipPath>
+        <clipPath id="clipCacamba"><rect x="1085" y="430" width="100" height="150"/></clipPath>
+      </defs>
+
+      <!-- chão -->
+      <ellipse cx="640" cy="584" rx="560" ry="22" fill="url(#gSombra)"/>
+      <line x1="40" y1="580" x2="1180" y2="580" stroke="#2c4a66" stroke-width="2"/>
+
+      <!-- tijolos caindo no funil (atrás da frente do funil) -->
+      <g id="tijolos"></g>
+
+      <g id="maquina">
+        <!-- base do motor -->
+        <g fill="url(#gAcoV)" stroke="#4a5563" stroke-width="1.5">
+          <rect x="122" y="333" width="12" height="245"/><rect x="286" y="333" width="12" height="245"/>
+          <rect x="128" y="468" width="166" height="9"/>
+          <rect x="112" y="572" width="34" height="8" rx="2"/><rect x="274" y="572" width="34" height="8" rx="2"/>
+        </g>
+        <rect x="108" y="325" width="204" height="10" rx="2" fill="url(#gAco)" stroke="#4a5563"/>
+
+        <!-- motor elétrico -->
+        <g id="motor">
+          <rect x="98" y="234" width="28" height="84" rx="10" fill="#1a2f9a" stroke="#0e1d66" stroke-width="2"/>
+          <g stroke="#0e1d66" stroke-width="1" opacity=".6"><line x1="102" y1="248" x2="122" y2="248"/><line x1="102" y1="258" x2="122" y2="258"/><line x1="102" y1="268" x2="122" y2="268"/><line x1="102" y1="278" x2="122" y2="278"/><line x1="102" y1="288" x2="122" y2="288"/><line x1="102" y1="298" x2="122" y2="298"/><line x1="102" y1="308" x2="122" y2="308"/></g>
+          <rect x="120" y="226" width="172" height="100" rx="16" fill="url(#gMotor)" stroke="#0e1d66" stroke-width="2"/>
+          <g id="aletas" stroke="#13258a" stroke-width="3" opacity=".75"></g>
+          <rect x="182" y="200" width="54" height="28" rx="4" fill="#2445D8" stroke="#0e1d66" stroke-width="2"/>
+          <rect x="192" y="194" width="34" height="8" rx="2" fill="#1a2f9a"/>
+          <rect x="150" y="318" width="22" height="9" fill="#1a2f9a"/><rect x="240" y="318" width="22" height="9" fill="#1a2f9a"/>
+        </g>
+        <!-- eixo + acoplamento -->
+        <rect x="290" y="268" width="74" height="14" fill="#9aa6b5" stroke="#4a5563"/>
+        <g id="acoplamento" transform="translate(330 275)">
+          <circle r="28" fill="#6b7787" stroke="#3e4855" stroke-width="2"/>
+          <circle r="22" fill="none" stroke="#a9b4c2" stroke-width="2" stroke-dasharray="8 6"/>
+          <g stroke="#dfe5ec" stroke-width="4" stroke-linecap="round"><line x1="0" y1="-18" x2="0" y2="18"/><line x1="-18" y1="0" x2="18" y2="0"/></g>
+          <circle r="6" fill="#3e4855"/>
+        </g>
+
+        <!-- estrutura da câmara -->
+        <g fill="url(#gAcoV)" stroke="#4a5563" stroke-width="1.5">
+          <rect x="372" y="468" width="14" height="110"/><rect x="694" y="468" width="14" height="110"/>
+          <rect x="380" y="548" width="320" height="10"/>
+          <rect x="360" y="572" width="38" height="8" rx="2"/><rect x="682" y="572" width="38" height="8" rx="2"/>
+        </g>
+        <!-- calha de descarga -->
+        <polygon points="430,470 690,470 668,514 612,514" fill="url(#gCalha)" stroke="#45603a" stroke-width="2"/>
+
+        <!-- corpo da câmara -->
+        <rect x="360" y="200" width="360" height="270" rx="4" fill="url(#gAco)" stroke="#4a5563" stroke-width="2"/>
+        <g id="grade" stroke="#5c6878" stroke-width="2" opacity=".8"></g>
+        <g fill="#5d6878" id="flanges"></g>
+
+        <!-- janela em corte: rotores -->
+        <rect x="408" y="243" width="264" height="169" rx="14" fill="#3e4855" stroke="#2c343e" stroke-width="2"/>
+        <rect x="414" y="249" width="252" height="157" rx="10" fill="url(#gJanela)"/>
+        <g clip-path="url(#clipJanela)">
+          <g id="fragmentos"></g>
+          <g id="rotorA" transform="translate(492 328)"></g>
+          <g id="rotorB" transform="translate(588 328)"></g>
+          <rect x="414" y="249" width="252" height="157" fill="url(#gSombra)" opacity=".0"/>
+        </g>
+        <rect x="414" y="249" width="252" height="157" rx="10" fill="none" stroke="rgba(170,220,255,.25)" stroke-width="2"/>
+        <path d="M424 256 L470 256" stroke="rgba(255,255,255,.18)" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- funil -->
+        <polygon points="330,92 750,92 690,200 390,200" fill="url(#gFunil)" stroke="#4a5563" stroke-width="2"/>
+        <polygon points="330,92 750,92 742,104 338,104" fill="#56616f"/>
+        <line x1="390" y1="200" x2="690" y2="200" stroke="#4a5563" stroke-width="4"/>
+
+        <!-- sinaleiro (torre de luz) -->
+        <g id="torre">
+          <rect x="720" y="262" width="58" height="8" fill="#5d6878"/>
+          <rect x="765" y="232" width="10" height="34" fill="#3e4855"/>
+          <rect x="756" y="226" width="28" height="10" rx="2" fill="#2c343e"/>
+          <rect id="luzVerde" x="757" y="200" width="26" height="26" rx="3" fill="#1d4d33"/>
+          <rect id="luzAmarela" x="757" y="172" width="26" height="26" rx="3" fill="#5a4a1a"/>
+          <rect id="luzVermelha" x="757" y="144" width="26" height="26" rx="3" fill="#5a1d1d"/>
+          <rect x="759" y="136" width="22" height="8" rx="3" fill="#2c343e"/>
+        </g>
+      </g>
+
+      <!-- esteira -->
+      <g id="esteira">
+        <g fill="url(#gAcoV)" stroke="#4a5563" stroke-width="1.5">
+          <rect x="740" y="540" width="10" height="40"/><rect x="900" y="512" width="10" height="68"/><rect x="1040" y="488" width="10" height="92"/>
+        </g>
+        <line x1="598" y1="560" x2="1068" y2="480" stroke="#4f5b6a" stroke-width="20" stroke-linecap="round"/>
+        <line x1="598" y1="560" x2="1068" y2="480" stroke="#6f7c8c" stroke-width="12" stroke-linecap="round"/>
+        <line x1="598" y1="549" x2="1068" y2="469" stroke="#1d36b8" stroke-width="9" stroke-linecap="round"/>
+        <line id="lona" x1="598" y1="549" x2="1068" y2="469" stroke="#7d96ff" stroke-width="3" stroke-dasharray="14 18" stroke-linecap="round" opacity=".8"/>
+        <g id="rolo1" transform="translate(598 556)"><circle r="12" fill="#3e4855" stroke="#2c343e" stroke-width="2"/><line x1="-8" y1="0" x2="8" y2="0" stroke="#a9b4c2" stroke-width="3"/></g>
+        <!-- motorredutor -->
+        <rect x="1052" y="384" width="32" height="56" rx="6" fill="url(#gAcoV)" stroke="#4a5563" stroke-width="1.5"/>
+        <rect x="1046" y="376" width="44" height="12" rx="4" fill="#5d6878"/>
+        <rect x="1060" y="440" width="16" height="16" fill="#5d6878"/>
+        <g id="rolo2" transform="translate(1068 474)"><circle r="20" fill="#6b7787" stroke="#3e4855" stroke-width="2"/><circle r="13" fill="none" stroke="#a9b4c2" stroke-width="2" stroke-dasharray="6 5"/><line x1="-12" y1="0" x2="12" y2="0" stroke="#dfe5ec" stroke-width="3" stroke-linecap="round"/><circle r="4" fill="#3e4855"/></g>
+        <g id="naEsteira"></g>
+      </g>
+
+      <!-- caçamba de chamote -->
+      <g>
+        <g clip-path="url(#clipCacamba)"><g id="noAr"></g><rect id="monte" x="1092" y="578" width="86" height="0" fill="#c86a3e"/></g>
+        <path d="M1086 506 L1184 506 L1176 578 L1094 578 Z" fill="none" stroke="#a9b4c2" stroke-width="3" stroke-linejoin="round"/>
+        <text x="1135" y="600" text-anchor="middle" fill="#a2adbd" font-family="Manrope" font-size="13" font-weight="700" letter-spacing="1.5">CHAMOTE</text>
+      </g>
+
+      <!-- partículas da calha para a esteira -->
+      <g id="queda"></g>
+
+      <!-- rótulos -->
+      <g font-family="Manrope" font-size="13" font-weight="700" fill="#a2adbd" letter-spacing="1.2">
+        <text x="205" y="182" text-anchor="middle">MOTOR</text>
+        <text x="540" y="70" text-anchor="middle">ENTRADA · TELHAS E TIJOLOS</text>
+        <text x="540" y="436" text-anchor="middle" fill="#cfd8e3">CÂMARA DE MOAGEM</text>
+        <text x="880" y="560" text-anchor="middle" transform="rotate(-9.7 880 560)">ESTEIRA</text>
+      </g>
+    </svg>
+
+    <div class="faixa-emerg">⚠ PARADA DE EMERGÊNCIA ACIONADA</div>
+  </main>
+
+  <section class="painel">
+    <div class="ihm" aria-live="polite">
+      <div><div class="rot">Motor</div><div class="val" id="vRpm">0 rpm</div></div>
+      <div><div class="rot">Rotores</div><div class="val" id="vRotor">0 rpm</div></div>
+      <div class="barra"><i id="barra"></i></div>
+      <div><div class="rot">Tempo ligado</div><div class="val" id="vTempo">00:00:00</div></div>
+      <div><div class="rot">Chamote (sim.)</div><div class="val" id="vKg">0,0 kg</div></div>
+      <div class="log" id="log"></div>
+      <div class="acoes">
+        <button class="btn" id="btnSilenciar" disabled>Silenciar alarme</button>
+        <button class="btn" id="btnZerar">Zerar contadores</button>
+      </div>
+    </div>
+
+    <div class="botoeira">
+      <span class="parafuso p1"></span><span class="parafuso p2"></span><span class="parafuso p3"></span><span class="parafuso p4"></span>
+      <div class="posto">
+        <span class="sinal verde" id="lampLigado"></span>
+        <button class="botao partida" id="bPartida" aria-label="Partida"><span class="cap">I</span></button>
+        <span class="placa">Partida</span>
+        <span class="dica"></span>
+      </div>
+      <div class="posto">
+        <span class="sinal vermelho on" id="lampDesligado"></span>
+        <button class="botao desligar" id="bDesligar" aria-label="Desligar"><span class="cap">O</span></button>
+        <span class="placa">Desligar</span>
+        <span class="dica"></span>
+      </div>
+      <div class="posto">
+        <span class="sinal ambar" id="lampEmerg"></span>
+        <button class="emerg-base" id="bEmerg" aria-label="Parada de emergência">
+          <svg class="anel" viewBox="0 0 200 200"><defs><path id="arco" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0"/></defs><text font-family="Manrope" font-weight="800" font-size="15" letter-spacing="3" fill="#1a1400"><textPath href="#arco" startOffset="2%">EMERGÊNCIA · STOP · EMERGÊNCIA · STOP ·</textPath></text></svg>
+          <span class="cogumelo"></span>
+        </button>
+        <span class="placa amarela">Emergência</span>
+        <span class="dica" id="dicaEmerg"></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="inicio" id="inicio">
+  <div>
+    <img src="logo.png" alt="">
+    <h2>Eco-Moedor Cerâmico</h2>
+    <p>Painel de operação do protótipo</p>
+    <button class="btn prim" id="btnIniciar">Toque para iniciar</button>
+    <p class="obs">Antes de começar, pareie a caixinha de som Bluetooth no tablet e deixe o volume alto. Depois, use o botão <b>Conectar</b> para ligar a ESP32.</p>
+  </div>
+</div>
+<div class="aviso" id="aviso"></div>
+
+<script>
+"use strict";
+/* ============ utilidades ============ */
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, pai) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (pai) pai.appendChild(e); return e; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const suave = t => t * t * (3 - 2 * t);
+let avisoT;
+function aviso(txt, ms = 2600){ const a = $("#aviso"); a.textContent = txt; a.classList.add("mostra"); clearTimeout(avisoT); avisoT = setTimeout(() => a.classList.remove("mostra"), ms); }
+const logEl = $("#log"); const eventos = [];
+function registra(txt){ const h = new Date().toTimeString().slice(0, 8); eventos.unshift(`<b>${h}</b> ${txt}`); eventos.length = Math.min(eventos.length, 3); logEl.innerHTML = eventos.join("<br>"); }
+
+/* ============ desenho estático gerado ============ */
+(function montaCena(){
+  const aletas = $("#aletas"); for (let x = 140; x <= 276; x += 9) el("line", {x1:x, y1:232, x2:x, y2:320}, aletas);
+  const grade = $("#grade");
+  [430, 500, 580, 650].forEach(x => { el("line", {x1:x, y1:206, x2:x, y2:243}, grade); el("line", {x1:x, y1:412, x2:x, y2:464}, grade); });
+  [390, 690].forEach(x => el("line", {x1:x, y1:206, x2:x, y2:464}, grade));
+  const fl = $("#flanges");
+  [200, 290, 380, 462].forEach(y => { el("rect", {x:356, y:y-3, width:368, height:8, rx:2}, fl); for (let x = 372; x <= 708; x += 28) el("circle", {cx:x, cy:y+1, r:2.6, fill:"#c9d2de"}, fl); });
+  // rotores com dentes em gancho
+  function rotor(g, sentido){
+    el("circle", {r:46, fill:"#4f5b6a", stroke:"#2c343e", "stroke-width":2}, g);
+    const n = 7, R1 = 44, R2 = 62; let d = "";
+    for (let i = 0; i < n; i++){
+      const a = i / n * Math.PI * 2, w = 0.22 * sentido;
+      const p = (r, ang) => `${(Math.cos(ang) * r).toFixed(1)},${(Math.sin(ang) * r).toFixed(1)}`;
+      d += `M${p(R1, a - 0.2)} L${p(R2, a + w)} L${p(R2 - 9, a + w + 0.16 * sentido)} L${p(R1, a + 0.25)} Z `;
+    }
+    el("path", {d, fill:"#c9d2de", stroke:"#5d6878", "stroke-width":1.5}, g);
+    el("circle", {r:30, fill:"#6b7787", stroke:"#3e4855", "stroke-width":2}, g);
+    el("circle", {r:22, fill:"none", stroke:"#E8892E", "stroke-width":3, "stroke-dasharray":"10 7"}, g);
+    el("circle", {r:9, fill:"#2c343e"}, g);
+    el("line", {x1:-26, y1:0, x2:26, y2:0, stroke:"#a9b4c2", "stroke-width":3}, g);
+  }
+  const ga = el("g", {}, $("#rotorA")); rotor(ga, 1);
+  const gb = el("g", {}, $("#rotorB")); rotor(gb, -1);
+})();
+
+/* ============ áudio (sintetizado, sai pela caixinha pareada ao tablet) ============ */
+const Som = {
+  ctx:null, pronto:false, volume:.85, mudo:false,
+  iniciar(){
+    if (this.ctx) { this.ctx.resume(); return; }
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+    const ctx = this.ctx = new C({latencyHint:"interactive"});
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+    this.master = ctx.createGain(); this.master.gain.value = this.volume; this.master.connect(comp); comp.connect(ctx.destination);
+    // ruído branco
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; this.ruido = buf;
+    const ruidoLoop = () => { const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; };
+    // ronco do motor
+    this.o1 = ctx.createOscillator(); this.o1.type = "sawtooth";
+    this.o2 = ctx.createOscillator(); this.o2.type = "square";
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 420; lp.Q.value = 2;
+    this.gRonco = ctx.createGain(); this.gRonco.gain.value = 0;
+    const g2 = ctx.createGain(); g2.gain.value = .35;
+    this.o1.connect(lp); this.o2.connect(g2); g2.connect(lp); lp.connect(this.gRonco); this.gRonco.connect(this.master);
+    // zumbido elétrico (assobio do motor)
+    this.oZ = ctx.createOscillator(); this.oZ.type = "triangle"; this.gZ = ctx.createGain(); this.gZ.gain.value = 0; this.oZ.connect(this.gZ); this.gZ.connect(this.master);
+    // ruído de moagem
+    const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 900; bp.Q.value = .7;
+    this.gMoagem = ctx.createGain(); this.gMoagem.gain.value = 0; ruidoLoop().connect(bp); bp.connect(this.gMoagem); this.gMoagem.connect(this.master);
+    // vibração grave
+    const lp2 = ctx.createBiquadFilter(); lp2.type = "lowpass"; lp2.frequency.value = 130;
+    this.gGrave = ctx.createGain(); this.gGrave.gain.value = 0; ruidoLoop().connect(lp2); lp2.connect(this.gGrave); this.gGrave.connect(this.master);
+    // sirene de alerta
+    this.oS = ctx.createOscillator(); this.oS.type = "square"; this.oS.frequency.value = 820;
+    const lfo = ctx.createOscillator(); lfo.type = "square"; lfo.frequency.value = 1.6;
+    const lfoG = ctx.createGain(); lfoG.gain.value = 190; lfo.connect(lfoG); lfoG.connect(this.oS.frequency);
+    const lpS = ctx.createBiquadFilter(); lpS.type = "lowpass"; lpS.frequency.value = 2600;
+    this.gS = ctx.createGain(); this.gS.gain.value = 0; this.oS.connect(lpS); lpS.connect(this.gS); this.gS.connect(this.master);
+    [this.o1, this.o2, this.oZ, this.oS, lfo].forEach(o => o.start());
+    this.pronto = true;
+  },
+  atualiza(v, moendo){
+    if (!this.pronto) return;
+    const t = this.ctx.currentTime, k = .06;
+    const f = 22 + 58 * v;
+    this.o1.frequency.setTargetAtTime(f, t, k); this.o2.frequency.setTargetAtTime(f * 2.01, t, k);
+    this.oZ.frequency.setTargetAtTime(120 + 780 * v, t, k);
+    this.gRonco.gain.setTargetAtTime(.32 * Math.pow(v, .6), t, k);
+    this.gZ.gain.setTargetAtTime(.035 * v, t, k);
+    this.gGrave.gain.setTargetAtTime(.55 * v, t, k);
+    const crunch = moendo ? (.55 + Math.random() * .7) : .25;
+    this.gMoagem.gain.setTargetAtTime(.22 * v * crunch, t, .03);
+  },
+  // estalo de cerâmica quebrando
+  estalo(forca){
+    if (!this.pronto) return;
+    const ctx = this.ctx, t = ctx.currentTime, s = ctx.createBufferSource(); s.buffer = this.ruido;
+    const hp = ctx.createBiquadFilter(); hp.type = "bandpass"; hp.frequency.value = 1400 + Math.random() * 2600; hp.Q.value = 1.5;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.35 * forca, t + .004); g.gain.exponentialRampToValueAtTime(.001, t + .05 + Math.random() * .08);
+    s.connect(hp); hp.connect(g); g.connect(this.master); s.start(t, Math.random() * 1.5, .2);
+  },
+  // contator / clique de botão
+  clique(grave = 1){
+    if (!this.pronto) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = "sine"; o.frequency.setValueAtTime(140 * grave, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
+    const g = ctx.createGain(); g.gain.setValueAtTime(.7, t); g.gain.exponentialRampToValueAtTime(.001, t + .16);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t + .2);
+    const s = ctx.createBufferSource(); s.buffer = this.ruido; const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2500;
+    const g2 = ctx.createGain(); g2.gain.setValueAtTime(.5, t); g2.gain.exponentialRampToValueAtTime(.001, t + .03);
+    s.connect(hp); hp.connect(g2); g2.connect(this.master); s.start(t, 0, .05);
+  },
+  // chiado de freio na emergência
+  freio(){
+    if (!this.pronto) return;
+    const ctx = this.ctx, t = ctx.currentTime, s = ctx.createBufferSource(); s.buffer = this.ruido;
+    const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 4; bp.frequency.setValueAtTime(2400, t); bp.frequency.exponentialRampToValueAtTime(300, t + 1);
+    const g = ctx.createGain(); g.gain.setValueAtTime(.45, t); g.gain.exponentialRampToValueAtTime(.001, t + 1.1);
+    s.connect(bp); bp.connect(g); g.connect(this.master); s.start(t, 0, 1.2);
+  },
+  // bipe de comando negado
+  negado(){
+    if (!this.pronto) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    [0, .16].forEach(d => { const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = 330; const g = ctx.createGain(); g.gain.setValueAtTime(.12, t + d); g.gain.setValueAtTime(0, t + d + .11); o.connect(g); g.connect(this.master); o.start(t + d); o.stop(t + d + .12); });
+  },
+  sirene(ligada){ if (!this.pronto) return; this.gS.gain.setTargetAtTime(ligada ? .2 : 0, this.ctx.currentTime, .04); },
+  setVolume(v){ this.volume = v; if (this.master) this.master.gain.setTargetAtTime(this.mudo ? 0 : v, this.ctx.currentTime, .05); },
+  alternaMudo(){ this.mudo = !this.mudo; this.setVolume(this.volume); return this.mudo; }
+};
+
+/* ============ lógica tipo CLP ============ */
+const NOMES = {PARADO:"PARADO", PARTINDO:"PARTINDO", OPERANDO:"OPERANDO", PARANDO:"DESLIGANDO", EMERGENCIA:"EMERGÊNCIA"};
+const M = { estado:"PARADO", vel:0, emergTela:false, emergFisica:false, sireneMuda:false, segundos:0, kg:0 };
+
+function setEstado(novo){
+  if (M.estado === novo) return;
+  M.estado = novo;
+  document.body.dataset.estado = novo;
+  $("#txtEstado").textContent = NOMES[novo];
+  $("#lampLigado").classList.toggle("on", novo === "OPERANDO" || novo === "PARTINDO");
+  $("#lampDesligado").classList.toggle("on", novo === "PARADO" || novo === "PARANDO");
+  $("#lampEmerg").classList.toggle("on", novo === "EMERGENCIA");
+  $("#btnSilenciar").disabled = novo !== "EMERGENCIA";
+  BLE.envia("STATE:" + novo);
+}
+
+function emergenciaAtiva(){ return M.emergTela || M.emergFisica; }
+
+function partida(origem){
+  animaBotao("#bPartida");
+  if (emergenciaAtiva()){ Som.negado(); aviso("Libere a emergência antes de dar partida."); return; }
+  if (M.estado === "OPERANDO" || M.estado === "PARTINDO") return;
+  Som.clique(1.2); setEstado("PARTINDO"); registra("Partida" + (origem ? " (" + origem + ")" : ""));
+}
+function desligar(origem){
+  animaBotao("#bDesligar");
+  if (M.estado === "PARTINDO" || M.estado === "OPERANDO"){ Som.clique(.9); setEstado("PARANDO"); registra("Desligamento" + (origem ? " (" + origem + ")" : "")); }
+}
+function acionaEmergencia(origem){
+  const ja = M.estado === "EMERGENCIA";
+  if (origem === "ESP32") M.emergFisica = true; else M.emergTela = true;
+  atualizaCogumelo();
+  if (ja) return;
+  Som.clique(.7); if (M.vel > .05) Som.freio();
+  M.sireneMuda = false; Som.sirene(true);
+  setEstado("EMERGENCIA"); registra("EMERGÊNCIA" + (origem ? " (" + origem + ")" : ""));
+}
+function liberaEmergencia(origem){
+  if (origem === "ESP32") M.emergFisica = false; else {
+    if (M.emergFisica){ Som.negado(); aviso("O botão de emergência físico ainda está acionado."); return; }
+    M.emergTela = false;
+  }
+  atualizaCogumelo();
+  if (!emergenciaAtiva() && M.estado === "EMERGENCIA"){ Som.sirene(false); Som.clique(1); setEstado(M.vel > .01 ? "PARANDO" : "PARADO"); registra("Emergência liberada (rearme)"); }
+}
+function atualizaCogumelo(){
+  const b = $("#bEmerg"), at = emergenciaAtiva();
+  b.classList.toggle("travado", at);
+  b.querySelector(".cogumelo").style.setProperty("--rot", at ? "0deg" : "45deg");
+  $("#dicaEmerg").textContent = at ? (M.emergFisica ? "Libere o botão físico" : "Toque para rearmar") : "";
+}
+function animaBotao(sel){ const b = $(sel); b.classList.add("apertado"); setTimeout(() => b.classList.remove("apertado"), 160); }
+
+$("#bPartida").addEventListener("pointerdown", e => { e.preventDefault(); partida(); });
+$("#bDesligar").addEventListener("pointerdown", e => { e.preventDefault(); desligar(); });
+$("#bEmerg").addEventListener("pointerdown", e => { e.preventDefault(); if (M.emergTela || M.emergFisica) liberaEmergencia(); else acionaEmergencia(); });
+$("#btnSilenciar").addEventListener("click", () => { M.sireneMuda = true; Som.sirene(false); $("#btnSilenciar").disabled = true; registra("Alarme silenciado"); });
+$("#btnZerar").addEventListener("click", () => { M.segundos = 0; M.kg = 0; montes = 0; registra("Contadores zerados"); });
+document.addEventListener("keydown", e => {
+  if (e.repeat) return; const k = e.key.toLowerCase();
+  if (k === "i" || k === "1") partida("teclado"); else if (k === "o" || k === "0") desligar("teclado"); else if (k === "e" || k === " ") { e.preventDefault(); $("#bEmerg").dispatchEvent(new PointerEvent("pointerdown")); }
+});
+
+/* ============ Bluetooth (Web Bluetooth BLE, serviço tipo UART) ============ */
+const UART = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // tablet -> ESP32
+const TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // ESP32 -> tablet
+const BLE = {
+  dev:null, rx:null, fila:Promise.resolve(), resto:"", saindo:false, tentativas:0,
+  status(s, txt){ $("#chipBle").dataset.s = s; $("#txtBle").textContent = txt; $("#txtBtnBle").textContent = s === "on" ? "Desconectar" : "Conectar"; },
+  async conectar(){
+    if (!navigator.bluetooth){ aviso("Este navegador não tem Bluetooth Web. Use o Google Chrome no Android, pelo endereço https.", 4500); return; }
+    if (this.dev && this.dev.gatt.connected){ this.saindo = true; this.dev.gatt.disconnect(); return; }
+    try {
+      this.status("busy", "Procurando ESP32…");
+      this.dev = await navigator.bluetooth.requestDevice({ filters:[{namePrefix:"Jubartech"}, {services:[UART]}], optionalServices:[UART] });
+      this.dev.addEventListener("gattserverdisconnected", () => this.caiu());
+      this.saindo = false; await this.abre();
+    } catch (err) { this.status("off", "ESP32 desconectada"); if (err && err.name !== "NotFoundError") aviso("Não foi possível conectar: " + err.message, 4000); }
+  },
+  async abre(){
+    this.status("busy", "Conectando…");
+    const srv = await this.dev.gatt.connect();
+    const svc = await srv.getPrimaryService(UART);
+    this.rx = await svc.getCharacteristic(RX);
+    const tx = await svc.getCharacteristic(TX);
+    await tx.startNotifications();
+    tx.addEventListener("characteristicvaluechanged", e => this.recebe(new TextDecoder().decode(e.target.value)));
+    this.tentativas = 0;
+    this.status("on", (this.dev.name || "ESP32") + " conectada");
+    registra("ESP32 conectada"); aviso("ESP32 conectada por Bluetooth");
+    this.envia("HELLO"); this.envia("STATE:" + M.estado);
+  },
+  caiu(){
+    this.rx = null;
+    if (this.saindo){ this.status("off", "ESP32 desconectada"); registra("ESP32 desconectada"); return; }
+    registra("Conexão com a ESP32 caiu");
+    const tenta = async () => {
+      if (this.saindo || !this.dev) return;
+      this.tentativas++; this.status("busy", "Reconectando… (" + this.tentativas + ")");
+      try { await this.abre(); } catch (e) { if (this.tentativas < 30) setTimeout(tenta, Math.min(1000 * this.tentativas, 5000)); else this.status("off", "ESP32 desconectada"); }
+    };
+    setTimeout(tenta, 600);
+  },
+  recebe(txt){
+    this.resto += txt; const linhas = this.resto.split(/\r?\n/); this.resto = linhas.pop();
+    // aceita mensagens sem quebra de linha também
+    if (this.resto && /^(START|STOP|EMERG|EMERG_OFF|PING)$/.test(this.resto.trim())) { linhas.push(this.resto); this.resto = ""; }
+    linhas.forEach(l => this.comando(l.trim().toUpperCase()));
+  },
+  comando(c){
+    if (!c) return;
+    if (c === "START") partida("ESP32");
+    else if (c === "STOP") desligar("ESP32");
+    else if (c === "EMERG") acionaEmergencia("ESP32");
+    else if (c === "EMERG_OFF") liberaEmergencia("ESP32");
+  },
+  envia(msg){
+    if (!this.rx) return;
+    const dados = new TextEncoder().encode(msg + "\n"), rx = this.rx;
+    this.fila = this.fila.then(() => (rx.writeValueWithoutResponse ? rx.writeValueWithoutResponse(dados) : rx.writeValue(dados))).catch(() => {});
+  }
+};
+$("#btnBle").addEventListener("click", () => BLE.conectar());
+if (!navigator.bluetooth) { BLE.status("off", "Modo demonstração"); }
+
+/* ============ controles da tela ============ */
+$("#volume").addEventListener("input", e => Som.setVolume(e.target.value / 100));
+$("#btnMudo").addEventListener("click", () => { const m = Som.alternaMudo(); $("#btnMudo").style.opacity = m ? .45 : 1; aviso(m ? "Som desligado" : "Som ligado", 1200); });
+$("#btnTela").addEventListener("click", () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.().catch(() => {}); });
+let travaTela = null;
+async function manterTelaAcesa(){ try { if ("wakeLock" in navigator) travaTela = await navigator.wakeLock.request("screen"); } catch (e) {} }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { manterTelaAcesa(); Som.ctx && Som.ctx.resume(); } });
+$("#btnIniciar").addEventListener("click", () => {
+  Som.iniciar(); Som.clique(1);
+  document.documentElement.requestFullscreen?.().catch(() => {});
+  manterTelaAcesa();
+  $("#inicio").classList.add("some");
+  registra("Painel iniciado");
+});
+
+/* ============ animação ============ */
+const R = { rotorA:$("#rotorA").firstChild, rotorB:$("#rotorB").firstChild, acop:$("#acoplamento"), rolo1:$("#rolo1"), rolo2:$("#rolo2"), lona:$("#lona"), maq:$("#maquina"), motor:$("#motor") };
+const gTij = $("#tijolos"), gFrag = $("#fragmentos"), gQueda = $("#queda"), gEst = $("#naEsteira"), gAr = $("#noAr"), monte = $("#monte");
+const luz = { g:$("#luzVerde"), y:$("#luzAmarela"), r:$("#luzVermelha") };
+const tijolos = [], frags = [], quedas = [], naEst = [], noAr = [];
+let ang = 0, angMotor = 0, lonaOff = 0, tTij = 0, tFrag = 0, tQueda = 0, tEstalo = 0, montes = 0;
+const B0 = {x:598, y:549}, B1 = {x:1068, y:469};
+
+function novoTijolo(){
+  const r = el("rect", {width:34, height:16, rx:2, fill:Math.random() < .5 ? "#C25A35" : "#b8502e", stroke:"#7a3018", "stroke-width":1.5}, gTij);
+  tijolos.push({e:r, x:430 + Math.random() * 200, y:-40, vy:40 + Math.random() * 30, a:Math.random() * 40 - 20, va:(Math.random() - .5) * 120});
+}
+function novoFrag(){
+  const s = 6 + Math.random() * 8;
+  const r = el("rect", {width:s, height:s * .7, rx:1, fill:["#C25A35", "#d77149", "#a94a2a"][Math.floor(Math.random() * 3)]}, gFrag);
+  frags.push({e:r, x:525 + Math.random() * 30, y:240, vy:60 + Math.random() * 40, s, a:Math.random() * 90});
+}
+function novaQueda(){
+  const r = el("circle", {r:2 + Math.random() * 2.2, fill:Math.random() < .5 ? "#d77149" : "#c86a3e"}, gQueda);
+  quedas.push({e:r, x:620 + Math.random() * 42, y:512, vy:30 + Math.random() * 30});
+}
+function poeNaEsteira(x){
+  const t = clamp((x - B0.x) / (B1.x - B0.x), 0, 1);
+  const r = el("ellipse", {rx:3 + Math.random() * 3, ry:2 + Math.random() * 1.5, fill:Math.random() < .5 ? "#d77149" : "#c86a3e"}, gEst);
+  naEst.push({e:r, t, dy:-3 - Math.random() * 2});
+}
+
+let ultimo = performance.now();
+function quadro(agora){
+  const dt = Math.min(.05, (agora - ultimo) / 1000); ultimo = agora;
+
+  // rampa de velocidade (aceleração / desaceleração / frenagem)
+  if (M.estado === "PARTINDO"){ M.vel = Math.min(1, M.vel + dt / 2.8); if (M.vel >= 1) setEstado("OPERANDO"); }
+  else if (M.estado === "PARANDO"){ M.vel = Math.max(0, M.vel - dt / 4.5); if (M.vel <= 0) { setEstado("PARADO"); registra("Máquina parada"); Som.clique(.8); } }
+  else if (M.estado === "EMERGENCIA"){ M.vel = Math.max(0, M.vel - dt / .9); }
+  const v = suave(M.vel);
+  const moendo = M.estado === "OPERANDO" || (M.estado === "PARTINDO" && v > .6);
+
+  // rotação
+  ang += dt * v * 140; angMotor += dt * v * 1400;
+  R.rotorA.setAttribute("transform", `rotate(${ang})`);
+  R.rotorB.setAttribute("transform", `rotate(${-ang + 25})`);
+  R.acop.setAttribute("transform", `translate(330 275) rotate(${angMotor})`);
+  R.rolo1.setAttribute("transform", `translate(598 556) rotate(${angMotor * .4})`);
+  R.rolo2.setAttribute("transform", `translate(1068 474) rotate(${angMotor * .4})`);
+  lonaOff -= dt * v * 90; R.lona.setAttribute("stroke-dashoffset", lonaOff.toFixed(1));
+  // vibração
+  const vib = v * (moendo ? 1.2 : .6);
+  R.maq.setAttribute("transform", vib > .02 ? `translate(${(Math.random() - .5) * vib} ${(Math.random() - .5) * vib})` : "");
+  R.motor.setAttribute("transform", vib > .02 ? `translate(0 ${(Math.random() - .5) * vib * 1.4})` : "");
+
+  // material
+  if (v > .5 && M.estado !== "EMERGENCIA" && M.estado !== "PARANDO"){ tTij -= dt; if (tTij <= 0){ novoTijolo(); tTij = .55 + Math.random() * .6; } }
+  if (v > .4){ tFrag -= dt; if (tFrag <= 0){ novoFrag(); tFrag = .07 / v; } tQueda -= dt; if (tQueda <= 0){ novaQueda(); tQueda = .05 / v; } }
+  if (moendo){ tEstalo -= dt; if (tEstalo <= 0){ Som.estalo(.5 + Math.random() * .6); tEstalo = .08 + Math.random() * .35; } }
+
+  for (let i = tijolos.length - 1; i >= 0; i--){ const p = tijolos[i]; p.vy += 520 * dt; p.y += p.vy * dt; p.a += p.va * dt; p.e.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${p.a} 17 8)`); if (p.y > 170){ p.e.remove(); tijolos.splice(i, 1); } }
+  for (let i = frags.length - 1; i >= 0; i--){ const p = frags[i];
+    const passa = p.y > 330; const lento = passa ? 1 : (v > .05 ? 1 : 0); // se parar, o material fica preso entre os rotores
+    p.y += p.vy * dt * lento; p.a += 200 * dt * v;
+    const s = passa ? Math.max(2.5, p.s * .35) : p.s;
+    p.e.setAttribute("width", s); p.e.setAttribute("height", s * .7);
+    p.e.setAttribute("transform", `translate(${p.x + (passa ? (Math.sin(p.y * .2) * 6) : 0)} ${p.y}) rotate(${p.a})`);
+    if (p.y > 410 || (!passa && p.y > 300 && v < .05 && frags.length > 25)){ p.e.remove(); frags.splice(i, 1); } }
+  for (let i = quedas.length - 1; i >= 0; i--){ const p = quedas[i]; p.vy += 600 * dt; p.y += p.vy * dt; p.e.setAttribute("cx", p.x); p.e.setAttribute("cy", p.y);
+    const yEst = B0.y + (B1.y - B0.y) * ((p.x - B0.x) / (B1.x - B0.x)) - 4;
+    if (p.y >= yEst){ p.e.remove(); quedas.splice(i, 1); if (naEst.length < 160) poeNaEsteira(p.x); } }
+  const vEst = dt * v * 90 / Math.hypot(B1.x - B0.x, B1.y - B0.y);
+  for (let i = naEst.length - 1; i >= 0; i--){ const p = naEst[i]; p.t += vEst; const x = B0.x + (B1.x - B0.x) * p.t, y = B0.y + (B1.y - B0.y) * p.t + p.dy;
+    p.e.setAttribute("cx", x.toFixed(1)); p.e.setAttribute("cy", y.toFixed(1));
+    if (p.t >= 1){ p.e.remove(); naEst.splice(i, 1); const r = el("circle", {r:2.6, fill:"#c86a3e"}, gAr); noAr.push({e:r, x, y, vx:40 + Math.random() * 50, vy:-20}); } }
+  for (let i = noAr.length - 1; i >= 0; i--){ const p = noAr[i]; p.vy += 600 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.e.setAttribute("cx", p.x); p.e.setAttribute("cy", p.y);
+    const topo = 578 - Math.min(64, montes * .06); if (p.y >= topo){ p.e.remove(); noAr.splice(i, 1); montes++; } }
+  const h = Math.min(64, montes * .06); monte.setAttribute("y", 578 - h); monte.setAttribute("height", h);
+
+  // sinaleiro
+  const pisca = Math.floor(agora / 350) % 2 === 0;
+  luz.g.setAttribute("fill", M.estado === "OPERANDO" ? "#2FD07A" : "#1d4d33");
+  luz.y.setAttribute("fill", (M.estado === "PARTINDO" || M.estado === "PARANDO") && pisca ? "#FFC23D" : "#5a4a1a");
+  luz.r.setAttribute("fill", (M.estado === "EMERGENCIA" && pisca) || M.estado === "PARADO" ? "#FF3B3B" : "#5a1d1d");
+  luz.r.setAttribute("filter", (M.estado === "EMERGENCIA" && pisca) || M.estado === "PARADO" ? "url(#brilho)" : "");
+  luz.g.setAttribute("filter", M.estado === "OPERANDO" ? "url(#brilho)" : "");
+  luz.y.setAttribute("filter", (M.estado === "PARTINDO" || M.estado === "PARANDO") && pisca ? "url(#brilho)" : "");
+
+  // IHM
+  if (v > .01) M.segundos += dt;
+  if (moendo) M.kg += dt * .14 * v; // ~500 kg/h (valor ilustrativo)
+  $("#vRpm").textContent = Math.round(1750 * v) + " rpm";
+  $("#vRotor").textContent = Math.round(28 * v) + " rpm";
+  $("#barra").style.width = (v * 100).toFixed(1) + "%";
+  const s = Math.floor(M.segundos); $("#vTempo").textContent = [s / 3600, (s % 3600) / 60, s % 60].map(n => String(Math.floor(n)).padStart(2, "0")).join(":");
+  $("#vKg").textContent = M.kg.toFixed(1).replace(".", ",") + " kg";
+
+  Som.atualiza(v, moendo);
+  requestAnimationFrame(quadro);
+}
+requestAnimationFrame(quadro);
+atualizaCogumelo();
+registra("Aguardando operador");
+
+/* ============ app instalável e offline ============ */
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
