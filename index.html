@@ -251,6 +251,10 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 .cell.wide { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .cell.wide h3 { border-left-color: var(--accent); }
 .cell .k { display: block; margin-bottom: 12px; font-family: var(--display); font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
+.sub { margin: 48px 0 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
+.flow { margin-top: 18px; }
+.team { margin-top: 36px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.team .cell h3 { font-family: var(--display); font-weight: 500; font-size: 1.3rem; }
 .why { margin-top: 36px; display: grid; gap: 12px; }
 @media (min-width: 900px) { .why { grid-template-columns: repeat(3, 1fr); } }
 .why .cell { background: linear-gradient(180deg, var(--p-top), var(--p-mid)); color: #0F1730; border: 0; }
@@ -347,27 +351,27 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <section id="mercado">
       <div class="wrap">
         <p class="label rv">O mercado</p>
-        <h2 class="h2 rv">Cerâmica vermelha no Cariri</h2>
-        <p class="intro rv">O Arranjo Produtivo Local de Cerâmica Vermelha da Região Metropolitana do Cariri depende muito de argila virgem e descarta todos os dias peças defeituosas, um passivo ambiental que pode virar chamote.</p>
+        <h2 class="h2 rv">Muita produção, muita perda</h2>
+        <p class="intro rv">O Brasil produz mais de 60 bilhões de blocos e telhas por ano. Cerca de 10% dessas peças de cerâmica vermelha saem com trincas, empeno ou queima errada e ficam acumuladas no pátio: ocupam espaço, geram risco de acidente e podem render multa.</p>
         <div class="stats">
-          <div class="stat fx rv"><b>17</b><span>olarias mapeadas</span><small>Unidades ativas no APL</small></div>
-          <div class="stat fx rv"><b>3% a 5%</b><span>de perda operacional</span><small>Volume que pode ser reprocessado</small></div>
-          <div class="stat fx rv"><b>R$ 11,98</b><span>de economia por tonelada</span><small>Estimativa frente à argila virgem</small></div>
+          <div class="stat fx rv"><b>+60 bi</b><span>blocos e telhas por ano no Brasil</span><small>Cerca de 5,3 bilhões por mês (Anicer)</small></div>
+          <div class="stat fx rv"><b>~10%</b><span>das peças se perdem</span><small>Cerca de 6 bilhões de peças por ano (Anicer)</small></div>
+          <div class="stat fx rv"><b>178</b><span>empresas cerâmicas no Ceará</span><small>Sindcerâmica 2024</small></div>
         </div>
         <div class="duo">
           <div class="panel fx rv">
-            <h3>Onde estão as 17 olarias</h3>
-            <ul class="bars" aria-label="Olarias por município">
-              <li title="Crato: 12 olarias (70,6%)"><span>Crato</span><span class="t"><span class="f" style="--w: 100%"></span></span><span class="v">12 <small>70,6%</small></span></li>
-              <li title="Jardim: 2 olarias (11,8%)"><span>Jardim</span><span class="t"><span class="f" style="--w: 16.7%"></span></span><span class="v">2 <small>11,8%</small></span></li>
-              <li title="Nova Olinda: 1 olaria (5,9%)"><span>Nova Olinda</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
-              <li title="Missão Velha: 1 olaria (5,9%)"><span>Missão Velha</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
-              <li title="Farias Brito: 1 olaria (5,9%)"><span>Farias Brito</span><span class="t"><span class="f" style="--w: 8.3%"></span></span><span class="v">1 <small>5,9%</small></span></li>
+            <h3>Onde estão as 178 empresas do Ceará</h3>
+            <ul class="bars" aria-label="Empresas cerâmicas por região do Ceará">
+              <li title="Vale do Jaguaribe: 88 empresas (49,4%)"><span>Vale do Jaguaribe</span><span class="t"><span class="f" style="--w: 100.0%"></span></span><span class="v">88 <small>49,4%</small></span></li>
+              <li title="Grande Fortaleza: 49 empresas (27,5%)"><span>Grande Fortaleza</span><span class="t"><span class="f" style="--w: 55.7%"></span></span><span class="v">49 <small>27,5%</small></span></li>
+              <li title="Cariri: 22 empresas (12,4%)"><span>Cariri</span><span class="t"><span class="f" style="--w: 25.0%"></span></span><span class="v">22 <small>12,4%</small></span></li>
+              <li title="Sertão de Canindé: 18 empresas (10,1%)"><span>Sertão de Canindé</span><span class="t"><span class="f" style="--w: 20.5%"></span></span><span class="v">18 <small>10,1%</small></span></li>
+              <li title="Sertão de Sobral: 1 empresas (0,6%)"><span>Sertão de Sobral</span><span class="t"><span class="f" style="--w: 1.1%"></span></span><span class="v">1 <small>0,6%</small></span></li>
             </ul>
           </div>
           <div class="panel alert fx rv">
-            <h3>O gargalo dos moinhos tradicionais</h3>
-            <p>Os moinhos de martelos do mercado foram feitos para indústrias de grande porte. Custam de R$ 28.000 a R$ 85.000 e usam motores de 15 a 30 CV, com contas de energia inviáveis para as micro e pequenas olarias do Cariri.</p>
+            <h3>Descarte irregular dá multa</h3>
+            <p>A Política Nacional de Resíduos Sólidos (Lei 12.305/2010) e o Decreto 6.514/2008 punem o descarte inadequado com multas de R$ 5 mil a R$ 50 milhões. Telha e tijolo são resíduo reciclável e podem voltar para a produção.</p>
           </div>
         </div>
       </div>
@@ -378,9 +382,9 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <p class="label rv">Proposta de valor</p>
         <h2 class="h2 rv">Por que o Eco&#8209;Moedor Cerâmico?</h2>
         <div class="why">
-          <div class="cell fx rv"><span class="k">Para o ceramista</span><h3>Menos custo, menos energia</h3><p>Equipamento mais de R$ 10 mil mais barato que os moinhos tradicionais, cerca de 66% menos energia e R$ 11,98 de economia por tonelada processada.</p></div>
-          <div class="cell fx rv"><span class="k">Para o produto</span><h3>Peças mais resistentes</h3><p>Telhas e blocos com menos trincas e absorção de água controlada.</p></div>
-          <div class="cell fx rv"><span class="k">Para a região</span><h3>Economia circular local</h3><p>Uma solução viável e sob medida para o APL de cerâmica do Cariri.</p></div>
+          <div class="cell fx rv"><span class="k">Para o ceramista</span><h3>Resíduo vira matéria-prima</h3><p>Operação simples, sem mão de obra especializada, e investimento menor que o de equipamentos equivalentes. Valor estimado do equipamento: cerca de R$ 30 mil.</p></div>
+          <div class="cell fx rv"><span class="k">Para a lei</span><h3>Adequação à PNRS</h3><p>O pátio fica livre e a fábrica dá destino correto ao resíduo, como pede a Política Nacional de Resíduos Sólidos.</p></div>
+          <div class="cell fx rv"><span class="k">Para o futuro</span><h3>ODS 8, 9 e 12</h3><p>Trabalho decente e crescimento econômico; indústria, inovação e infraestrutura; consumo e produção responsáveis.</p></div>
         </div>
       </div>
     </section>
@@ -391,8 +395,16 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <h2 class="h2 rv">Eco-Moedor Cerâmico</h2>
         <figure class="proto rv">
           <img src="img/moedor.webp" width="1370" height="1006" alt="Modelo 3D do Eco-Moedor Cerâmico: funil de entrada, câmara de trituração, motor azul e esteira de saída" loading="lazy">
-          <figcaption><span class="pill dark">TRL 3→4</span><span class="pill dark">Patente em depósito</span></figcaption>
+          <figcaption><span class="pill dark">TRL 3→4</span><span class="pill dark">Patente em depósito</span><span class="pill dark">3 estágios de moagem</span></figcaption>
         </figure>
+        <h3 class="sub rv">Fluxo do processo</h3>
+        <div class="grid2 flow">
+          <div class="cell fx rv"><span class="k">01 · Entrada</span><h3>Peças reprovadas</h3><p>Telhas e tijolos com trincas, empeno ou queima errada, que antes ficavam acumulados no pátio.</p></div>
+          <div class="cell fx rv"><span class="k">02 · Trituração em 3 estágios</span><h3>Por compressão, sem martelos</h3><p>Rolos dentados, rolos de compressão e um conjunto de peneiras. O que não passa na peneira volta para a moagem.</p></div>
+          <div class="cell wide fx rv"><span class="k">03 · Saída ajustável</span><h3>Controle granulométrico</h3><p>A moagem é ajustada conforme a demanda para entregar a granulometria escolhida.</p></div>
+          <div class="cell fx rv"><span class="k">4A · Chamote · até 1,45 mm</span><h3>Volta à produção</h3><p>Até 10% da massa de telhas e tijolos, quadras de saibro e indústria de cimento.</p></div>
+          <div class="cell fx rv"><span class="k">4B · Cascalho · acima de 1,45 mm</span><h3>Novos mercados</h3><p>Jardinagem e paisagismo, drenagem de terrenos, base de estradas de terra e pátios, contrapiso e concreto não estrutural.</p></div>
+        </div>
       </div>
     </section>
 
@@ -407,7 +419,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
           <ol class="cine-steps">
             <li><b>01</b><h3>O Eco&#8209;Moedor Cerâmico</h3><p>Funil, câmara de trituração, motor e esteira em um só conjunto.</p></li>
             <li><b>02</b><h3>Peças reprovadas entram</h3><p>Telhas e tijolos com defeito caem entre os rotores.</p></li>
-            <li><b>03</b><h3>Os rotores trituram</h3><p>O material desce em grão fino, já com cara de chamote.</p></li>
+            <li><b>03</b><h3>Os rolos trituram</h3><p>Rolos dentados, rolos de compressão e peneiras deixam o grão no tamanho certo.</p></li>
             <li><b>04</b><h3>Chamote de volta à produção</h3><p>A esteira leva o pó para a próxima massa cerâmica.</p></li>
           </ol>
           <div class="cine-meter" aria-hidden="true">
@@ -443,14 +455,28 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       </div>
     </section>
 
+    <section id="negocio" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Modelo de negócio</p>
+        <h2 class="h2 rv">Licenciamos a tecnologia</h2>
+        <p class="intro rv">A Jubartech não fabrica a máquina. Um fabricante de equipamentos produz e vende o Eco&#8209;Moedor Cerâmico, e a Jubartech recebe royalties por cada venda.</p>
+        <div class="grid2">
+          <div class="cell fx rv"><span class="k">Receita</span><h3>Licenças com royalties</h3><p>Modelo B2B, sem custo de fábrica: o equipamento chega ao mercado mais rápido e com menos risco.</p></div>
+          <div class="cell fx rv"><span class="k">Receita</span><h3>Consultoria de diagnóstico</h3><p>Levantamento do resíduo de cada cerâmica para indicar como reaproveitá-lo.</p></div>
+          <div class="cell fx rv"><span class="k">Clientes</span><h3>Cerâmicas de pequeno e médio porte</h3><p>Indústrias de cerâmica vermelha que produzem telhas e tijolos.</p></div>
+          <div class="cell fx rv"><span class="k">Próximos passos</span><h3>No mercado em até 2 anos</h3><p>Captação de recursos para concluir o protótipo, com investimento inicial estimado entre R$ 18 mil e R$ 22 mil.</p></div>
+        </div>
+      </div>
+    </section>
+
     <section id="ciencia" style="padding-top: 0">
       <div class="wrap">
         <p class="label rv">Ciência dos materiais</p>
         <h2 class="h2 rv">Chamote que reforça a peça</h2>
         <p class="intro rv">Ensaios experimentais e a literatura de cerâmica tradicional indicam que o chamote na faixa granulométrica certa funciona como elemento estrutural e estabilizador da massa.</p>
         <div class="grid2">
-          <div class="cell fx rv"><h3>Incorporação ótima de 5%</h3><p>Adicionar 5% de chamote em massa na argila virgem aumenta a resistência mecânica depois da queima (1000 °C) e reduz a absorção de água.</p></div>
-          <div class="cell fx rv"><h3>Faixa granulométrica de 18 a 70 mesh</h3><p>A distância controlada entre os rolos evita moer demais e mantém os grãos no tamanho ideal para o empacotamento.</p></div>
+          <div class="cell fx rv"><h3>Até 10% na massa</h3><p>O chamote pode entrar em até 10% da formulação. Ensaios indicam que já com 5% a resistência depois da queima (1000 °C) aumenta e a absorção de água cai.</p></div>
+          <div class="cell fx rv"><h3>Grãos até 1,45 mm</h3><p>Até 1,45 mm é chamote; acima disso é cascalho. A distância controlada entre os rolos evita moer demais.</p></div>
           <div class="cell fx rv"><h3>Menos microtrincas</h3><p>Reduz a diferença de retração durante a secagem e diminui a quebra de telhas e tijolos no forno.</p></div>
           <div class="cell fx rv"><h3>Saúde e ergonomia (NR-15)</h3><p>A baixa rotação reduz o ruído e a poeira de sílica no ar, ajudando a prevenir doenças respiratórias ocupacionais.</p></div>
           <div class="cell wide fx rv"><span class="k">Simbiose industrial</span><h3>Nova receita na construção civil</h3><p>Com granulometria controlada, as próprias olarias podem vender o chamote a concreteiras da região, como adição pozolânica (filler) para concreto autoadensável de alta resistência.</p></div>
@@ -477,14 +503,28 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     </section>
 
     <div class="mq mq-b" aria-hidden="true"><div class="mq-track"><div class="mq-set"><span class="mq-i">Resíduo vira matéria-prima</span><i class="mq-dot"></i><span class="mq-i o">Menos argila virgem</span><i class="mq-dot"></i><span class="mq-i">Licenciamento de tecnologia</span><i class="mq-dot"></i><span class="mq-i o">Eco‑Moedor Cerâmico</span><i class="mq-dot"></i></div><div class="mq-set"><span class="mq-i">Resíduo vira matéria-prima</span><i class="mq-dot"></i><span class="mq-i o">Menos argila virgem</span><i class="mq-dot"></i><span class="mq-i">Licenciamento de tecnologia</span><i class="mq-dot"></i><span class="mq-i o">Eco‑Moedor Cerâmico</span><i class="mq-dot"></i></div></div></div>
+    <section id="equipe" style="padding-top: 0">
+      <div class="wrap">
+        <p class="label rv">Quem somos</p>
+        <h2 class="h2 rv">Desobstruindo espaços, construindo soluções</h2>
+        <div class="team">
+          <div class="cell fx rv"><span class="k">CEO</span><h3>Piethro</h3></div>
+          <div class="cell fx rv"><span class="k">Design e Pesquisa Tecnológica</span><h3>Ruann</h3></div>
+          <div class="cell fx rv"><span class="k">Sustentabilidade e Regulação</span><h3>Raiane</h3></div>
+          <div class="cell fx rv"><span class="k">Engenharia de Desenvolvimento</span><h3>Thiago</h3></div>
+          <div class="cell fx rv"><span class="k">Comercial e Mercado</span><h3>Taysio</h3></div>
+        </div>
+      </div>
+    </section>
+
     <section id="perguntas" style="padding-top: 0">
       <div class="wrap">
         <p class="label rv">Perguntas</p>
         <h2 class="h2 rv">O essencial</h2>
         <div class="faq">
           <details class="rv"><summary>O que é o Eco-Moedor Cerâmico?<i aria-hidden="true"></i></summary><p class="a">Um equipamento que tritura por compressão, refina e classifica telhas e tijolos reprovados, entregando chamote com granulometria controlada.</p></details>
-          <details class="rv"><summary>Vocês vendem a máquina?<i aria-hidden="true"></i></summary><p class="a">Não. A Jubartech licencia a tecnologia para fabricantes de equipamentos, que produzem e vendem o Eco-Moedor Cerâmico.</p></details>
-          <details class="rv"><summary>Em que estágio está o projeto?<i aria-hidden="true"></i></summary><p class="a">Protótipo em desenvolvimento, indo para o teste de conceito (TRL 3→4), com patente em depósito e apoio do Instituto SENAI de Tecnologia.</p></details>
+          <details class="rv"><summary>Vocês vendem a máquina?<i aria-hidden="true"></i></summary><p class="a">Não. A Jubartech licencia a tecnologia para fabricantes de equipamentos, que produzem e vendem o Eco-Moedor Cerâmico, e oferece consultoria de diagnóstico do resíduo.</p></details>
+          <details class="rv"><summary>Em que estágio está o projeto?<i aria-hidden="true"></i></summary><p class="a">Protótipo em desenvolvimento, indo para o teste de conceito (TRL 3→4), com patente em depósito (modelo de utilidade) e apoio do Instituto SENAI de Tecnologia. A previsão é chegar ao mercado em até 2 anos.</p></details>
         </div>
       </div>
     </section>
