@@ -253,6 +253,12 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 .cell .k { display: block; margin-bottom: 12px; font-family: var(--display); font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
 .sub { margin: 48px 0 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
 .flow { margin-top: 18px; }
+.cell .cimg { display: block; width: calc(100% + 44px); max-width: none; height: auto; aspect-ratio: 16 / 9; object-fit: cover; margin: -22px -22px 18px; border-radius: 21px 21px 0 0; }
+.cell.wide .cimg { aspect-ratio: 32 / 9; }
+.wide-photo { margin-top: 36px; min-height: 0; width: 100%; aspect-ratio: 16 / 9; }
+@media (min-width: 760px) { .wide-photo { aspect-ratio: 16 / 7; } }
+.wide-photo img { width: 100%; height: 100%; object-fit: cover; }
+.wide-photo + .grid2 { margin-top: 12px; }
 .team { margin-top: 36px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .team .cell h3 { font-family: var(--display); font-weight: 500; font-size: 1.3rem; }
 .why { margin-top: 36px; display: grid; gap: 12px; }
@@ -399,11 +405,11 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         </figure>
         <h3 class="sub rv">Fluxo do processo</h3>
         <div class="grid2 flow">
-          <div class="cell fx rv"><span class="k">01 · Entrada</span><h3>Peças reprovadas</h3><p>Telhas e tijolos com trincas, empeno ou queima errada, que antes ficavam acumulados no pátio.</p></div>
-          <div class="cell fx rv"><span class="k">02 · Trituração em 3 estágios</span><h3>Por compressão, sem martelos</h3><p>Rolos dentados, rolos de compressão e um conjunto de peneiras. O que não passa na peneira volta para a moagem.</p></div>
-          <div class="cell wide fx rv"><span class="k">03 · Saída ajustável</span><h3>Controle granulométrico</h3><p>A moagem é ajustada conforme a demanda para entregar a granulometria escolhida.</p></div>
-          <div class="cell fx rv"><span class="k">4A · Chamote · até 1,45 mm</span><h3>Volta à produção</h3><p>Até 10% da massa de telhas e tijolos, quadras de saibro e indústria de cimento.</p></div>
-          <div class="cell fx rv"><span class="k">4B · Cascalho · acima de 1,45 mm</span><h3>Novos mercados</h3><p>Jardinagem e paisagismo, drenagem de terrenos, base de estradas de terra e pátios, contrapiso e concreto não estrutural.</p></div>
+          <div class="cell fx rv"><img class="cimg" src="img/fluxo-entrada.webp" width="960" height="540" alt="Telhas reprovadas caindo no funil do Eco-Moedor Cerâmico (simulação 3D)" loading="lazy"><span class="k">01 · Entrada</span><h3>Peças reprovadas</h3><p>Telhas e tijolos com trincas, empeno ou queima errada, que antes ficavam acumulados no pátio.</p></div>
+          <div class="cell fx rv"><img class="cimg" src="img/fluxo-trituracao.webp" width="960" height="540" alt="Rolos dentados quebrando as telhas (simulação 3D)" loading="lazy"><span class="k">02 · Trituração em 3 estágios</span><h3>Por compressão, sem martelos</h3><p>Rolos dentados, rolos de compressão e um conjunto de peneiras. O que não passa na peneira volta para a moagem.</p></div>
+          <div class="cell wide fx rv"><img class="cimg" src="img/fluxo-saida.webp" width="960" height="540" alt="Material moído descendo pela saída do equipamento (simulação 3D)" loading="lazy"><span class="k">03 · Saída ajustável</span><h3>Controle granulométrico</h3><p>A moagem é ajustada conforme a demanda para entregar a granulometria escolhida.</p></div>
+          <div class="cell fx rv"><img class="cimg" src="img/fluxo-chamote.webp" width="960" height="540" alt="Chamote fino na esteira de saída (simulação 3D)" loading="lazy"><span class="k">4A · Chamote · até 1,45 mm</span><h3>Volta à produção</h3><p>Até 10% da massa de telhas e tijolos, quadras de saibro e indústria de cimento.</p></div>
+          <div class="cell fx rv"><img class="cimg" src="img/fluxo-cascalho.webp" width="960" height="540" alt="Fragmentos maiores saindo da trituração (simulação 3D)" loading="lazy"><span class="k">4B · Cascalho · acima de 1,45 mm</span><h3>Novos mercados</h3><p>Jardinagem e paisagismo, drenagem de terrenos, base de estradas de terra e pátios, contrapiso e concreto não estrutural.</p></div>
         </div>
       </div>
     </section>
@@ -459,12 +465,13 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       <div class="wrap">
         <p class="label rv">Modelo de negócio</p>
         <h2 class="h2 rv">Licenciamos a tecnologia</h2>
-        <p class="intro rv">A Jubartech não fabrica a máquina. Um fabricante de equipamentos produz e vende o Eco&#8209;Moedor Cerâmico, e a Jubartech recebe royalties por cada venda.</p>
+        <p class="intro rv">A Jubartech não fabrica a máquina. Um fabricante de equipamentos produz e vende o Eco&#8209;Moedor Cerâmico para cerâmicas de pequeno e médio porte, e a Jubartech recebe royalties por cada venda.</p>
+        <div class="photo wide-photo rv"><img src="img/fluxo-maquina.webp" width="960" height="540" alt="Eco-Moedor Cerâmico completo: motor, câmara de trituração e esteira de saída (simulação 3D)" loading="lazy"><span class="pill tag">Valor estimado do equipamento: R$ 30 mil</span></div>
         <div class="grid2">
           <div class="cell fx rv"><span class="k">Receita</span><h3>Licenças com royalties</h3><p>Modelo B2B, sem custo de fábrica: o equipamento chega ao mercado mais rápido e com menos risco.</p></div>
           <div class="cell fx rv"><span class="k">Receita</span><h3>Consultoria de diagnóstico</h3><p>Levantamento do resíduo de cada cerâmica para indicar como reaproveitá-lo.</p></div>
-          <div class="cell fx rv"><span class="k">Clientes</span><h3>Cerâmicas de pequeno e médio porte</h3><p>Indústrias de cerâmica vermelha que produzem telhas e tijolos.</p></div>
-          <div class="cell fx rv"><span class="k">Próximos passos</span><h3>No mercado em até 2 anos</h3><p>Captação de recursos para concluir o protótipo, com investimento inicial estimado entre R$ 18 mil e R$ 22 mil.</p></div>
+          <div class="cell fx rv"><span class="k">Para o fabricante</span><h3>Investimento inicial de R$ 18 a 22 mil</h3><p>É o valor estimado para o fabricante licenciado começar a produzir o Eco&#8209;Moedor Cerâmico.</p></div>
+          <div class="cell fx rv"><span class="k">Próximos passos</span><h3>No mercado em até 2 anos</h3><p>Captação de recursos para o desenvolvimento do protótipo e primeiro fabricante licenciado.</p></div>
         </div>
       </div>
     </section>
@@ -492,10 +499,10 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
           <div class="photo rv"><img src="img/mao-hd.webp" width="2048" height="1530" alt="Mão robótica segurando pó de chamote ao lado de fragmentos de telha" loading="lazy"><span class="pill tag">Chamote · granulometria controlada</span></div>
           <div>
             <div class="cards">
-              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a9.5 9.5 0 0 1 16.5-5"/><path d="M24 3.5V8h-4.5"/><path d="M25 19a9.5 9.5 0 0 1-16.5 5"/><path d="M8 28.5V24h4.5"/><path class="hot" d="M12 20c0-5 3.5-8 8-8 0 5-3 8-8 8z"/><path class="hot" d="M12 20l4-4"/></svg></span><h3>Economia circular</h3></div>
-              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 27c-6-1-9-6-8-14 6 0 10 4 9 12"/><path d="M15 27c-1-4-3-7-6-9"/><path class="hot" d="M16 27c0-9 4-14 11-15 1 8-4 14-11 15z"/><path class="hot" d="M16 27c2-5 5-8 8-10"/></svg></span><h3>Economia de matéria-prima virgem</h3></div>
-              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6.5l-4.5 8"/><path d="M8 11.5l.5 3 3-.5"/><path d="M7.5 19.5L5.5 23a2 2 0 0 0 1.7 3H13"/><path class="hot" d="M19 26h6.5a2 2 0 0 0 1.7-3l-2.5-4.3"/><path class="hot" d="M22 28.5L19 26l3-2.5"/><path d="M24.5 13L20.5 6a2 2 0 0 0-3.5 0l-1 1.7"/><path d="M27 12l-2.5 1-1-3"/></svg></span><h3>Reintrodução dos resíduos no processo produtivo</h3></div>
-              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 27h22"/><rect x="7" y="19" width="4" height="8" rx="1"/><rect x="14" y="15" width="4" height="12" rx="1"/><rect x="21" y="11" width="4" height="16" rx="1"/><path class="hot" d="M6 15l7-6 4 3 8-7"/><path class="hot" d="M21 5h4v4"/></svg></span><h3>Aquisição mais acessível</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13a9.5 9.5 0 0 1 16.5-5"/><path d="M24 3.5V8h-4.5"/><path d="M25 19a9.5 9.5 0 0 1-16.5 5"/><path d="M8 28.5V24h4.5"/><path class="hot" d="M12 20c0-5 3.5-8 8-8 0 5-3 8-8 8z"/><path class="hot" d="M12 20l4-4"/></svg></span><h3>Reaproveitamento de resíduos como matéria-prima</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="4"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8"/><path class="hot" d="M14.5 16l1.2 1.2 2.3-2.4"/></svg></span><h3>Operação simples, sem mão de obra especializada</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 27c-6-1-9-6-8-14 6 0 10 4 9 12"/><path d="M15 27c-1-4-3-7-6-9"/><path class="hot" d="M16 27c0-9 4-14 11-15 1 8-4 14-11 15z"/><path class="hot" d="M16 27c2-5 5-8 8-10"/></svg></span><h3>Adequação à legislação ambiental (PNRS)</h3></div>
+              <div class="card rv"><span class="ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 27h22"/><rect x="7" y="19" width="4" height="8" rx="1"/><rect x="14" y="15" width="4" height="12" rx="1"/><rect x="21" y="11" width="4" height="16" rx="1"/><path class="hot" d="M6 15l7-6 4 3 8-7"/><path class="hot" d="M21 5h4v4"/></svg></span><h3>CAPEX inferior ao de equipamentos equivalentes</h3></div>
             </div>
           </div>
         </div>
